@@ -35,8 +35,48 @@ def ver_resenas(id):
         resultado.append({
             "id": r.id,
             "usuario": usuario.nombre,
+            "usuario_id": r.usuario_id,
             "comentario": r.comentario,
             "valoracion": r.valoracion,
             "fecha": r.fecha.strftime('%Y-%m-%d')
         })
     return jsonify(resultado), 200
+
+#Eliminar reseña
+@review_bp.route('/<int:id>', methods=['DELETE'])
+@jwt_required()
+def eliminar_resena(id):
+    resena = Reseña.query.get_or_404(id)
+    usuario_id = get_jwt_identity()
+
+    if resena.usuario_id != int(usuario_id):
+        return jsonify({"msg": "No autorizado para eliminar esta reseña"}), 403
+
+    db.session.delete(resena)
+    db.session.commit()
+
+    return jsonify({"msg": "Reseña eliminada exitosamente"}), 200
+
+#Editar reseña
+@review_bp.route('/<int:id>', methods=['PUT'])
+@jwt_required()
+def editar_resena(id):
+    resena = Reseña.query.get_or_404(id)
+    usuario_id = get_jwt_identity()
+
+    if resena.usuario_id != int(usuario_id):
+        return jsonify({"msg": "No autorizado para editar esta reseña"}), 403
+
+    data = request.get_json()
+    resena.comentario = data.get('comentario', resena.comentario)
+    resena.valoracion = data.get('valoracion', resena.valoracion)
+    
+    db.session.commit()
+
+    return jsonify({
+        "id": resena.id,
+        "comentario": resena.comentario,
+        "valoracion": resena.valoracion,
+        "fecha": resena.fecha.strftime('%Y-%m-%d')
+    }), 200
+

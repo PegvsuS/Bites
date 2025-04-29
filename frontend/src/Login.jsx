@@ -17,7 +17,10 @@ const handleLogin = async (e) => {
     });
     const data = await res.json();
     if (res.ok) {
-    localStorage.setItem("token", data.token);
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user_id", data.usuario.id);
+        localStorage.setItem("nombre", data.usuario.nombre);
+        localStorage.setItem("email", data.usuario.email);  
     navigate("/");
     } else {
     alert(data.msg || "Error al iniciar sesión");
