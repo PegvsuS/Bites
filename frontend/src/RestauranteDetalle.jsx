@@ -1,8 +1,11 @@
-import { useParams } from "react-router-dom";
+// Componentes
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 function RestauranteDetalle() {
 const { id } = useParams();
+const navigate = useNavigate();
+
 const [restaurante, setRestaurante] = useState(null);
 const [resenas, setResenas] = useState([]);
 const [comentario, setComentario] = useState("");
@@ -12,6 +15,8 @@ const [editandoResenaId, setEditandoResenaId] = useState(null); //ID de la rese�
 const [comentarioEditado, setComentarioEditado] = useState(""); //Comentario en edición
 const [valoracionEditada, setValoracionEditada] = useState(5);  //Valoración en edición
 const [mensaje, setMensaje] = useState("");
+
+
 
 
 
@@ -34,30 +39,42 @@ useEffect(() => {
 const handleSubmitResena = async (e) => {
     e.preventDefault();
 
+    //Validaciones antes de enviar al backend
+    if (comentario.trim().length < 10) {
+        alert("El comentario debe tener al menos 10 caracteres.");
+        return;
+    }
+
+    if (valoracion < 1 || valoracion > 5) {
+        alert("La valoración debe estar entre 1 y 5 estrellas.");
+        return;
+    }
+
+    //Si pasa las validaciones, realizar fetch normalmente
     const res = await fetch(`${API_URL}/api/resenas/`, {
         method: "POST",
         headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
-    },
-    body: JSON.stringify({
-        restaurante_id: restaurante.id,
-        comentario,
-        valoracion
-    })
+        },
+        body: JSON.stringify({
+            restaurante_id: restaurante.id,
+            comentario,
+            valoracion
+        })
     });
 
     const data = await res.json();
     if (res.ok) {
-    setComentario("");
-    setValoracion(5);
-    setResenas([...resenas, {
-        ...data.nuevaResena,
-        usuario: "Tú",
-        fecha: new Date().toISOString().split("T")[0]
-    }]);
+        setComentario("");
+        setValoracion(5);
+        setResenas([...resenas, {
+            ...data.nuevaResena,
+            usuario: "Tú",
+            fecha: new Date().toISOString().split("T")[0]
+        }]);
     } else {
-    alert(data.msg || "Error al enviar reseña");
+        alert(data.msg || "Error al enviar reseña");
     }
 };
 
@@ -119,12 +136,30 @@ const handleUpdateResena = async (e) => {
 if (!restaurante) return <p>Cargando...</p>;
 
 return (
+
     <div style={{ padding: "2rem" }}>
         {mensaje && (
             <div style={{ background: "#d4edda", color: "#155724", padding: "1rem", marginBottom: "1rem", borderRadius: "8px" }}>
         {mensaje}
     </div>
 )}
+
+    {/* Botón de volver */}
+    <button 
+        onClick={() => navigate("/")}
+        style={{
+            marginBottom: "1rem",
+            background: "#eee",
+            border: "none",
+            padding: "0.5rem 1rem",
+            cursor: "pointer",
+            borderRadius: "5px"
+        }}
+    >
+    ⬅️ Volver
+    </button>
+
+    {/*Restaurante*/}
     <h1>{restaurante.nombre}</h1>
     <img src={restaurante.imagen} alt={restaurante.nombre} style={{ width: "100%", maxHeight: "400px", objectFit: "cover", borderRadius: "10px" }} />
     <p><strong>Tipo de cocina:</strong> {restaurante.tipo_cocina}</p>
