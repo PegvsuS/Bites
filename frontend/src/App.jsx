@@ -4,9 +4,10 @@ import { Link } from "react-router-dom";
 
 function App() {
   const [restaurantes, setRestaurantes] = useState([]);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/api/restaurantes/")
+    fetch(`${API_URL}/api/restaurantes/`)
       .then(res => res.json())
       .then(data => setRestaurantes(data))
       .catch(err => console.error("Error al cargar restaurantes", err));

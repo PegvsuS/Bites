@@ -7,9 +7,11 @@ const [email, setEmail] = useState("");
 const [password, setPassword] = useState("");
 const navigate = useNavigate();
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const handleRegister = async (e) => {
     e.preventDefault();
-    const res = await fetch("http://127.0.0.1:5000/api/auth/register", {
+    const res = await fetch(`${API_URL}/api/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ nombre, email, password })
