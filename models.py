@@ -27,9 +27,9 @@ class Restaurante(db.Model):
     tipo_cocina = db.Column(db.String(50))
     localidad = db.Column(db.String(50))
     direccion = db.Column(db.String(200))
-    precio_medio = db.Column(db.String(10))
+    precio_medio = db.Column(db.Float, nullable=False)
     imagen = db.Column(db.String(200))  # URL o path de la imagen
-    url_web = db.Column(db.String(200))
+    url_web = db.Column(db.String(255), nullable=True)  # URL del sitio web
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
 
 # Modelo Reseña

@@ -1,8 +1,11 @@
+import pymysql
+pymysql.install_as_MySQLdb()
+
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import Config
-from models import db  # IMPORTA AQUÍ la instancia correctamente
+from models import db 
 
 # Inicializar app
 app = Flask(__name__)
