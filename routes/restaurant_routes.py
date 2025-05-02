@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from models import db, Restaurante
 from flask_jwt_extended import jwt_required
+from sqlalchemy.sql import func
+from models import Reseña
 
 restaurant_bp = Blueprint('restaurantes', __name__)
 
@@ -22,15 +24,15 @@ def crear_restaurante():
     db.session.commit()
     return jsonify({"msg": "Restaurante creado", "id": nuevo.id}), 201
 
-# Obtener todos
+# Obtener todos los restaurantes
 @restaurant_bp.route('/', methods=['GET'])
 def obtener_restaurantes():
     localidad = request.args.get('localidad')
     tipo_cocina = request.args.get('tipo_cocina')
     precio_min_raw = request.args.get('precio_min')
     precio_max_raw = request.args.get('precio_max')
+    valoracion_min_raw = request.args.get('valoracion_min')
 
-# Convertir a float solo si es válido
     try:
         precio_min = float(precio_min_raw)
     except (TypeError, ValueError):
@@ -39,38 +41,44 @@ def obtener_restaurantes():
         precio_max = float(precio_max_raw)
     except (TypeError, ValueError):
         precio_max = None
+    try:
+        valoracion_min = float(valoracion_min_raw)
+    except (TypeError, ValueError):
+        valoracion_min = None
 
-    query = Restaurante.query
+    # Iniciar query con join a reseñas
+    query = db.session.query(Restaurante).outerjoin(Reseña).group_by(Restaurante.id)
+
     if localidad:
         query = query.filter(Restaurante.localidad.ilike(f"%{localidad}%"))
     if tipo_cocina:
         query = query.filter(Restaurante.tipo_cocina.ilike(f"%{tipo_cocina}%"))
-    if precio_min not in [None, ""]:
-        try:
-            query = query.filter(Restaurante.precio_medio >= float(precio_min))
-        except ValueError:
-            pass
-    if precio_max not in [None, ""]:
-        try:
-            query = query.filter(Restaurante.precio_medio <= float(precio_max))
-        except ValueError:
-            pass
-
-    print("→ Filtro precio_min aplicado:", precio_min)
-    print("→ Filtro precio_max aplicado:", precio_max)
-    print("→ Query final:", str(query))
-
+    if precio_min is not None:
+        query = query.filter(Restaurante.precio_medio >= precio_min)
+    if precio_max is not None:
+        query = query.filter(Restaurante.precio_medio <= precio_max)
+    if valoracion_min is not None:
+        query = query.having(func.avg(Reseña.valoracion) >= valoracion_min)
 
     restaurantes = query.all()
-    resultado = [{
-        "id": r.id,
-        "nombre": r.nombre,
-        "tipo_cocina": r.tipo_cocina,
-        "localidad": r.localidad,
-        "precio_medio": r.precio_medio,
-        "imagen": r.imagen,
-        "url_web": r.url_web
-    } for r in restaurantes]
+
+    resultado = []
+    for r in restaurantes:
+        media_valoracion = (
+            db.session.query(func.avg(Reseña.valoracion))
+            .filter(Reseña.restaurante_id == r.id)
+            .scalar()
+        )
+        resultado.append({
+            "id": r.id,
+            "nombre": r.nombre,
+            "tipo_cocina": r.tipo_cocina,
+            "localidad": r.localidad,
+            "precio_medio": r.precio_medio,
+            "imagen": r.imagen,
+            "url_web": r.url_web,
+            "valoracion_media": round(media_valoracion or 0, 1)
+        })
 
     return jsonify(resultado), 200
 

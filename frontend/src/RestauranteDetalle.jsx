@@ -35,44 +35,56 @@
 
     const handleSubmitResena = async (e) => {
         e.preventDefault();
-
+    
         if (comentario.trim().length < 10) {
-        toast.error("El comentario debe tener al menos 10 caracteres.");
+            toast.error("El comentario debe tener al menos 10 caracteres.");
         return;
         }
-
+    
         if (valoracion < 1 || valoracion > 5) {
-        toast.error("La valoración debe estar entre 1 y 5 estrellas.");
+            toast.error("La valoración debe estar entre 1 y 5 estrellas.");
         return;
         }
-
+    
+        console.log("→ Intentando enviar reseña...");
+        console.log("ID del restaurante:", restaurante?.id);
+    
+        try {
         const res = await fetch(`${API_URL}/api/resenas/`, {
-        method: "POST",
-        headers: {
+            method: "POST",
+            headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
+            },
+            body: JSON.stringify({
             restaurante_id: restaurante.id,
             comentario,
             valoracion
-        })
+            })
         });
-
+    
         const data = await res.json();
+    
         if (res.ok) {
-        setComentario("");
-        setValoracion(5);
-        setResenas([...resenas, {
+            setComentario("");
+            setValoracion(5);
+            setResenas([...resenas, {
             ...data.nuevaResena,
             usuario: "Tú",
             fecha: new Date().toISOString().split("T")[0]
-        }]);
-        toast.success("¡Reseña publicada exitosamente!");
+            }]);
+            toast.success("¡Reseña publicada exitosamente!");
         } else {
-        toast.error(data.msg || "Error al enviar reseña");
+            console.error("Error del servidor:", data);
+            toast.error(data.msg || "Error al enviar reseña");
+        }
+    
+        } catch (err) {
+        console.error("Error de red o fetch:", err);
+        toast.error("No se pudo conectar al servidor");
         }
     };
+    
 
     const handleDeleteResena = async (resenaId) => {
         if (!window.confirm("¿Seguro que quieres eliminar esta reseña?")) return;

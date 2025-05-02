@@ -13,7 +13,8 @@ function App() {
     localidad: "",
     tipo_cocina: "",
     precioMin: "",
-    precioMax: ""
+    precioMax: "",
+    valoracionMin: ""
   });
 
   const API_URL = import.meta.env.VITE_API_URL;
@@ -37,6 +38,7 @@ function App() {
     if (filtros.tipo_cocina) query.push(`tipo_cocina=${filtros.tipo_cocina}`);
     if (filtros.precioMin) query.push(`precio_min=${filtros.precioMin}`);
     if (filtros.precioMax) query.push(`precio_max=${filtros.precioMax}`);
+    if (filtros.valoracionMin) query.push(`valoracion_min=${filtros.valoracionMin}`);
 
     const params = query.length ? "?" + query.join("&") : "";
     fetchRestaurantes(params);
@@ -126,6 +128,17 @@ function App() {
             onChange={handleFiltroChange}
             style={{ display: "block", marginBottom: "1rem", width: "100%" }}
           />
+          <input
+            type="number"
+            name="valoracionMin"
+            placeholder="Valoración mínima (1-5)"
+            value={filtros.valoracionMin}
+            onChange={handleFiltroChange}
+            min={1}
+            max={5}
+            step={0.1}
+            style={{ display: "block", marginBottom: "1rem", width: "100%" }}
+          />
 
           <button onClick={aplicarFiltros}>Aplicar filtros</button>
           <button onClick={() => setIsModalOpen(false)} style={{ marginLeft: "1rem" }}>
@@ -143,6 +156,7 @@ function App() {
                 <p>{r.tipo_cocina}</p>
                 <p><strong>Localidad:</strong> {r.localidad}</p>
                 <p><strong>Precio:</strong> {r.precio_medio}</p>
+                <p><strong>Valoración:</strong> ⭐ {r.valoracion_media ? r.valoracion_media : "Sin reseñas"}</p>
               </div>
             </Link>
           ))}
