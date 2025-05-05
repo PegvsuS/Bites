@@ -26,6 +26,8 @@ app.register_blueprint(restaurant_bp, url_prefix="/api/restaurantes")
 from routes.review_routes import review_bp
 app.register_blueprint(review_bp, url_prefix="/api/resenas")
 
+from routes.comment_routes import comment_bp
+app.register_blueprint(comment_bp, url_prefix="/api/comentarios")
 
 # Crear tablas
 with app.app_context():
@@ -33,3 +35,6 @@ with app.app_context():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+

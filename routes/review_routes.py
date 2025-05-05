@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import db, Reseña, Usuario, Restaurante
+from models import db, Resena, Usuario, Restaurante
 
 review_bp = Blueprint('resenas', __name__)
 
@@ -14,7 +14,7 @@ def crear_resena():
     comentario = data.get('comentario')
     valoracion = data.get('valoracion')
 
-    nueva = Reseña(
+    nueva = Resena(
         usuario_id=usuario_id,
         restaurante_id=restaurante_id,
         comentario=comentario,
@@ -28,7 +28,7 @@ def crear_resena():
 # Ver reseñas de un restaurante
 @review_bp.route('/restaurante/<int:id>', methods=['GET'])
 def ver_resenas(id):
-    resenas = Reseña.query.filter_by(restaurante_id=id).all()
+    resenas = Resena.query.filter_by(restaurante_id=id).all()
     resultado = []
     for r in resenas:
         usuario = Usuario.query.get(r.usuario_id)
@@ -46,7 +46,7 @@ def ver_resenas(id):
 @review_bp.route('/<int:id>', methods=['DELETE'])
 @jwt_required()
 def eliminar_resena(id):
-    resena = Reseña.query.get_or_404(id)
+    resena = Resena.query.get_or_404(id)
     usuario_id = get_jwt_identity()
 
     if resena.usuario_id != int(usuario_id):
@@ -61,7 +61,7 @@ def eliminar_resena(id):
 @review_bp.route('/<int:id>', methods=['PUT'])
 @jwt_required()
 def editar_resena(id):
-    resena = Reseña.query.get_or_404(id)
+    resena = Resena.query.get_or_404(id)
     usuario_id = get_jwt_identity()
 
     if resena.usuario_id != int(usuario_id):

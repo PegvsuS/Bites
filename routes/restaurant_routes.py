@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from models import db, Restaurante
 from flask_jwt_extended import jwt_required
 from sqlalchemy.sql import func
-from models import Reseña
+from models import Resena
 
 restaurant_bp = Blueprint('restaurantes', __name__)
 
@@ -47,7 +47,7 @@ def obtener_restaurantes():
         valoracion_min = None
 
     # Iniciar query con join a reseñas
-    query = db.session.query(Restaurante).outerjoin(Reseña).group_by(Restaurante.id)
+    query = db.session.query(Restaurante).outerjoin(Resena).group_by(Restaurante.id)
 
     if localidad:
         query = query.filter(Restaurante.localidad.ilike(f"%{localidad}%"))
@@ -58,15 +58,15 @@ def obtener_restaurantes():
     if precio_max is not None:
         query = query.filter(Restaurante.precio_medio <= precio_max)
     if valoracion_min is not None:
-        query = query.having(func.avg(Reseña.valoracion) >= valoracion_min)
+        query = query.having(func.avg(Resena.valoracion) >= valoracion_min)
 
     restaurantes = query.all()
 
     resultado = []
     for r in restaurantes:
         media_valoracion = (
-            db.session.query(func.avg(Reseña.valoracion))
-            .filter(Reseña.restaurante_id == r.id)
+            db.session.query(func.avg(Resena.valoracion))
+            .filter(Resena.restaurante_id == r.id)
             .scalar()
         )
         resultado.append({
