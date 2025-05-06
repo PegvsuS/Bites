@@ -54,6 +54,7 @@ def obtener_restaurantes():
     precio_min_raw = request.args.get('precio_min')
     precio_max_raw = request.args.get('precio_max')
     valoracion_min_raw = request.args.get('valoracion_min')
+    ordenar_por = request.args.get('ordenar_por')
 
     try:
         precio_min = float(precio_min_raw)
@@ -68,7 +69,11 @@ def obtener_restaurantes():
     except (TypeError, ValueError):
         valoracion_min = None
 
-    query = db.session.query(Restaurante).outerjoin(Resena).group_by(Restaurante.id)
+    # Base query con agregación de valoraciones
+    query = db.session.query(
+        Restaurante,
+        func.avg(Resena.valoracion).label("media_valoracion")
+    ).outerjoin(Resena).group_by(Restaurante.id)
 
     if localidad:
         query = query.filter(Restaurante.localidad.ilike(f"%{localidad}%"))
@@ -81,16 +86,21 @@ def obtener_restaurantes():
     if valoracion_min is not None:
         query = query.having(func.avg(Resena.valoracion) >= valoracion_min)
 
-    restaurantes = query.all()
+    # Ordenar según parámetro
+    if ordenar_por == "fecha_asc":
+        query = query.order_by(Restaurante.fecha_registro.asc())
+    elif ordenar_por == "fecha_desc":
+        query = query.order_by(Restaurante.fecha_registro.desc())
+    elif ordenar_por == "valoracion_asc":
+        query = query.order_by(func.avg(Resena.valoracion).asc())
+    elif ordenar_por == "valoracion_desc":
+        query = query.order_by(func.avg(Resena.valoracion).desc())
 
-    resultado = []
-    for r in restaurantes:
-        media_valoracion = (
-            db.session.query(func.avg(Resena.valoracion))
-            .filter(Resena.restaurante_id == r.id)
-            .scalar()
-        )
-        resultado.append({
+    resultados = query.all()
+
+    lista = []
+    for r, media in resultados:
+        lista.append({
             "id": r.id,
             "nombre": r.nombre,
             "tipo_cocina": r.tipo_cocina,
@@ -98,10 +108,12 @@ def obtener_restaurantes():
             "precio_medio": r.precio_medio,
             "imagen": r.imagen,
             "url_web": r.url_web,
-            "valoracion_media": round(media_valoracion or 0, 1)
+            "valoracion_media": round(media or 0, 1)
         })
 
-    return jsonify(resultado), 200
+    return jsonify(lista), 200
+
+
 
 # Obtener uno por ID
 @restaurant_bp.route('/<int:id>', methods=['GET'])
