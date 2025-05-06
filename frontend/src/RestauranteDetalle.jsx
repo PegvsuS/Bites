@@ -106,7 +106,7 @@
         <div style={{ padding: "2rem" }}>
         <button onClick={() => navigate("/")} style={{ marginBottom: "1rem" }}>⬅️ Volver</button>
         <h1>{restaurante.nombre}</h1>
-        <img src={restaurante.imagen} alt={restaurante.nombre} style={{ width: "100%", maxHeight: "400px", objectFit: "cover" }} />
+        <img src={`${import.meta.env.VITE_API_URL}${restaurante.imagen}`} alt={restaurante.nombre} style={{ width: "100%", maxHeight: "400px", objectFit: "cover" }} />
         <p><strong>Tipo de cocina:</strong> {restaurante.tipo_cocina}</p>
         <p><strong>Dirección:</strong> {restaurante.direccion}</p>
         <p><strong>Precio medio:</strong> {restaurante.precio_medio}</p>

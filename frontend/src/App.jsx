@@ -151,7 +151,7 @@ function App() {
           {restaurantes.map(r => (
             <Link to={`/restaurante/${r.id}`} key={r.id} style={{ textDecoration: "none", color: "inherit" }}>
               <div style={{ border: "1px solid #ccc", borderRadius: "10px", padding: "1rem" }}>
-                <img src={r.imagen} alt={r.nombre} style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "8px" }} />
+                <img src={`${import.meta.env.VITE_API_URL}${r.imagen}`} alt={r.nombre} style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "8px" }} />
                 <h2>{r.nombre}</h2>
                 <p>{r.tipo_cocina}</p>
                 <p><strong>Localidad:</strong> {r.localidad}</p>

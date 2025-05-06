@@ -1,14 +1,17 @@
-from flask import Blueprint, request, jsonify
-from models import db, Restaurante
+# routes/restaurant_routes.py
+import os
+from flask import Blueprint, request, jsonify, current_app
+from models import db, Restaurante, Resena
 from flask_jwt_extended import jwt_required
 from sqlalchemy.sql import func
-from models import Resena
+from werkzeug.utils import secure_filename
+from utils import allowed_file 
 
 restaurant_bp = Blueprint('restaurantes', __name__)
 
 # Crear restaurante
 @restaurant_bp.route('/', methods=['POST'])
-@jwt_required() # Asegurar que el usuario está autenticado
+@jwt_required()
 def crear_restaurante():
     data = request.get_json()
     nuevo = Restaurante(
@@ -18,11 +21,30 @@ def crear_restaurante():
         direccion=data.get('direccion'),
         precio_medio=data.get('precio_medio'),
         imagen=data.get('imagen'),
-        url_web=data.get('url_web') or None # url_web puede ser None si no se proporciona
+        url_web=data.get('url_web') or None
     )
     db.session.add(nuevo)
     db.session.commit()
     return jsonify({"msg": "Restaurante creado", "id": nuevo.id}), 201
+
+# Ruta de subida de imagenes
+@restaurant_bp.route('/upload', methods=['POST'])
+@jwt_required()
+def upload_image():
+    if 'imagen' not in request.files:
+        return jsonify({"msg": "No se envió ningún archivo"}), 400
+
+    file = request.files['imagen']
+    if file.filename == '':
+        return jsonify({"msg": "Nombre de archivo vacío"}), 400
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        return jsonify({"url": f"/static/uploads/{filename}"}), 200
+
+    return jsonify({"msg": "Archivo no permitido"}), 400
 
 # Obtener todos los restaurantes
 @restaurant_bp.route('/', methods=['GET'])
@@ -46,7 +68,6 @@ def obtener_restaurantes():
     except (TypeError, ValueError):
         valoracion_min = None
 
-    # Iniciar query con join a reseñas
     query = db.session.query(Restaurante).outerjoin(Resena).group_by(Restaurante.id)
 
     if localidad:
