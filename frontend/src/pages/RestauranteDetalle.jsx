@@ -1,5 +1,5 @@
     // RestauranteDetalle.jsx
-    import { useParams, useNavigate } from "react-router-dom";
+    import { useParams, useNavigate, Link } from "react-router-dom";
     import { useEffect, useState } from "react";
     import { toast } from 'react-toastify';
     import { FaCheckCircle } from 'react-icons/fa';
@@ -132,7 +132,13 @@
         ) : (
             resenas.map(r => (
             <div key={r.id} style={{ background: "#f4f4f4", padding: "1rem", borderRadius: "8px", marginBottom: "1rem" }}>
-                <p><strong>{r.usuario}</strong> dijo:</p>
+                <p>
+                <strong>
+                    <Link to={`/usuarios/${r.usuario_id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                    {r.usuario}
+                    </Link>
+                </strong> dijo:
+                </p>
 
                 {editandoResenaId === r.id ? (
                 <form onSubmit={handleUpdateResena} style={{ marginTop: "1rem" }}>

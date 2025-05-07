@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, Usuario, Resena
 
@@ -44,3 +44,26 @@ def buscar_usuarios():
 
     usuarios = [{"id": u.id, "nombre": u.nombre, "email": u.email} for u in resultados]
     return jsonify(usuarios), 200
+
+# Obtener perfil público de un usuario por ID
+@user_bp.route('/<int:id>', methods=['GET'])
+def perfil_publico(id):
+    usuario = Usuario.query.get_or_404(id)
+
+    resenas = Resena.query.filter_by(usuario_id=id).order_by(Resena.fecha.desc()).all()
+
+    return jsonify({
+        "id": usuario.id,
+        "nombre": usuario.nombre,
+        "fecha_registro": usuario.fecha_registro.strftime('%Y-%m-%d'),
+        "resenas": [
+            {
+                "id": r.id,
+                "comentario": r.comentario,
+                "valoracion": r.valoracion,
+                "fecha": r.fecha.strftime('%Y-%m-%d'),
+                "restaurante_id": r.restaurante_id
+            }
+            for r in resenas
+        ]
+    }), 200
