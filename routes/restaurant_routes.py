@@ -100,6 +100,12 @@ def obtener_restaurantes():
 
     lista = []
     for r, media in resultados:
+        cantidad_resenas = (
+            db.session.query(func.count(Resena.id))
+            .filter(Resena.restaurante_id == r.id)
+            .scalar()
+        )
+
         lista.append({
             "id": r.id,
             "nombre": r.nombre,
@@ -108,7 +114,8 @@ def obtener_restaurantes():
             "precio_medio": r.precio_medio,
             "imagen": r.imagen,
             "url_web": r.url_web,
-            "valoracion_media": round(media or 0, 1)
+            "valoracion_media": round(media or 0, 1),
+            "cantidad_resenas": cantidad_resenas
         })
 
     return jsonify(lista), 200

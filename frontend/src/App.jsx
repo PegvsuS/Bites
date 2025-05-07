@@ -3,15 +3,15 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Modal from "react-modal";
+import BuscadorUsuarios from "./components/BuscadorUsuarios";
 
 Modal.setAppElement("#root");
 
 function App() {
   const [restaurantes, setRestaurantes] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [orden, setOrden] = useState("");
-  const [mostrarOrdenDropdown, setMostrarOrdenDropdown] = useState(false);
   const [ordenSeleccionado, setOrdenSeleccionado] = useState("");
+  const [mostrarOrdenDropdown, setMostrarOrdenDropdown] = useState(false);
   const [filtros, setFiltros] = useState({
     localidad: "",
     tipo_cocina: "",
@@ -34,7 +34,6 @@ function App() {
     fetchRestaurantes();
   }, []);
 
-  // Nuevo useEffect que escucha ordenSeleccionado
   useEffect(() => {
     const query = [];
 
@@ -72,39 +71,45 @@ function App() {
     <>
       <ToastContainer />
       <div style={{ padding: "2rem" }}>
-        <div style={{ marginBottom: "1rem" }}>
-          {!isAuthenticated ? (
-            <>
-              <a href="/login" style={{ marginRight: "1rem" }}>Login</a>
-              <a href="/register">Registro</a>
-            </>
-          ) : (
-            <>
-              <a href="/crear-restaurante" style={{ marginRight: "1rem" }}>➕ Añadir restaurante</a>
-              <button onClick={() => {
-                localStorage.removeItem("token");
-                window.location.reload();
-              }}>
-                Cerrar sesión
-              </button>
-            </>
-          )}
+        <div style={{ marginBottom: "1rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            {!isAuthenticated ? (
+              <>
+                <a href="/login" style={{ marginRight: "1rem" }}>Login</a>
+                <a href="/register">Registro</a>
+              </>
+            ) : (
+              <>
+                <a href="/crear-restaurante" style={{ marginRight: "1rem" }}>➕ Añadir restaurante</a>
+                <a href="/perfil" style={{ marginRight: "1rem" }}>👤 Mi perfil</a>
+                <button onClick={() => {
+                  localStorage.removeItem("token");
+                  window.location.reload();
+                }}>
+                  Cerrar sesión
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Buscador de usuarios */}
+          <BuscadorUsuarios />
         </div>
 
         <h1>Bites 🍽️</h1>
 
-        <div style={{ marginBottom: "1rem", display: "flex", gap: "1rem" }}>
+        <div style={{ marginBottom: "1rem", display: "flex", gap: "1rem", alignItems: "center" }}>
           <button onClick={() => setIsModalOpen(true)}>🔍 Filtros</button>
           <div style={{ position: "relative" }}>
-          <button onClick={() => setMostrarOrdenDropdown(!mostrarOrdenDropdown)}>
+            <button onClick={() => setMostrarOrdenDropdown(!mostrarOrdenDropdown)}>
               📊 {ordenSeleccionado
-                    ? {
-                        fecha_asc: "Fecha ascendente",
-                        fecha_desc: "Fecha descendente",
-                        valoracion_asc: "Valoración ascendente",
-                        valoracion_desc: "Valoración descendente"
-                      }[ordenSeleccionado]
-                    : "Ordenar"}
+                ? {
+                    fecha_asc: "Fecha ascendente",
+                    fecha_desc: "Fecha descendente",
+                    valoracion_asc: "Valoración ascendente",
+                    valoracion_desc: "Valoración descendente"
+                  }[ordenSeleccionado]
+                : "Ordenar"}
             </button>
             {mostrarOrdenDropdown && (
               <div style={{
@@ -175,7 +180,12 @@ function App() {
                 <p>{r.tipo_cocina}</p>
                 <p><strong>Localidad:</strong> {r.localidad}</p>
                 <p><strong>Precio:</strong> {r.precio_medio}</p>
-                <p><strong>Valoración:</strong> ⭐ {r.valoracion_media ? r.valoracion_media : "Sin reseñas"}</p>
+                <p>
+                  <strong>Valoración:</strong> ⭐ {r.valoracion_media ? r.valoracion_media : "Sin reseñas"}
+                  {r.cantidad_resenas !== undefined && r.cantidad_resenas > 0 && (
+                    <> ({r.cantidad_resenas} reseña{r.cantidad_resenas > 1 ? "s" : ""})</>
+                  )}
+                </p>
               </div>
             </Link>
           ))}

@@ -35,6 +35,9 @@ app.register_blueprint(review_bp, url_prefix="/api/resenas")
 from routes.comment_routes import comment_bp
 app.register_blueprint(comment_bp, url_prefix="/api/comentarios")
 
+from routes.user_routes import user_bp
+app.register_blueprint(user_bp, url_prefix="/api/usuarios")
+
 # Crear tablas en la BD
 with app.app_context():
     db.create_all()

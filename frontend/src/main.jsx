@@ -5,10 +5,12 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import App from "./App";
-import RestauranteDetalle from "./RestauranteDetalle";
-import Login from "./Login";
-import Register from "./Register";
-import CrearRestaurante from './CrearRestaurante';
+import RestauranteDetalle from "./pages/RestauranteDetalle";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import CrearRestaurante from './pages/CrearRestaurante';
+import PerfilUsuario from "./pages/PerfilUsuario";
+
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -20,6 +22,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/crear-restaurante" element={<CrearRestaurante />} />
+          <Route path="/" element={<App />} />
+            <Route path="/perfil" element={<PerfilUsuario />} />
         </Routes>
         <ToastContainer 
           position="bottom-left"

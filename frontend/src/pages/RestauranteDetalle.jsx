@@ -3,7 +3,7 @@
     import { useEffect, useState } from "react";
     import { toast } from 'react-toastify';
     import { FaCheckCircle } from 'react-icons/fa';
-    import Comentarios from "./Comentarios"; 
+    import Comentarios from "../Comentarios"; 
 
 
     function RestauranteDetalle() {
