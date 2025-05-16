@@ -81,6 +81,7 @@ function App() {
             ) : (
               <>
                 <a href="/crear-restaurante" style={{ marginRight: "1rem" }}>➕ Añadir restaurante</a>
+                <a href="/crear-publicacion" style={{ marginRight: "1rem" }}>✍️ Crear publicación</a>
                 <a href="/perfil" style={{ marginRight: "1rem" }}>👤 Mi perfil</a>
                 <button onClick={() => {
                   localStorage.removeItem("token");
@@ -171,11 +172,12 @@ function App() {
           <button onClick={() => setIsModalOpen(false)} style={{ marginLeft: "1rem" }}>Cancelar</button>
         </Modal>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1rem" }}>
+        <div
+          style={{display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1.5rem", justifyItems: "stretch", padding: "1rem"}}>
           {restaurantes.map(r => (
-            <Link to={`/restaurante/${r.id}`} key={r.id} style={{ textDecoration: "none", color: "inherit" }}>
-              <div style={{ border: "1px solid #ccc", borderRadius: "10px", padding: "1rem" }}>
-                <img src={`${API_URL}${r.imagen}`} alt={r.nombre} style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "8px" }} />
+            <Link to={`/restaurante/${r.id}`} key={r.id} style={{ textDecoration: "none", color: "inherit", display: "block", height: "100%"}}>
+              <div style={{ border: "1px solid #ccc", borderRadius: "10px", padding: "1rem", backgroundColor: "#fff", display: "flex", flexDirection: "column", justifyContent: "space-between"}}> 
+                <img src={`${API_URL}${r.imagen}`} alt={r.nombre} style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "8px", marginBottom: "1rem" }} />
                 <h2>{r.nombre}</h2>
                 <p>{r.tipo_cocina}</p>
                 <p><strong>Localidad:</strong> {r.localidad}</p>

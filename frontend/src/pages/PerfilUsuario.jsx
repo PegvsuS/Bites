@@ -18,8 +18,8 @@
         try {
             const res = await fetch(`${API_URL}/api/usuarios/perfil`, {
             headers: {
-                "Authorization": `Bearer ${token}`
-            }
+                Authorization: `Bearer ${token}`,
+            },
             });
 
             if (!res.ok) {
@@ -34,12 +34,7 @@
         }
         };
 
-        if (token) {
         obtenerPerfil();
-        } else {
-        toast.warn("Debes iniciar sesión para ver tu perfil.");
-        navigate("/login");
-        }
     }, [API_URL, token, navigate]);
 
     if (!usuario) return <p>Cargando perfil...</p>;
@@ -54,36 +49,70 @@
             backgroundColor: "#ddd",
             border: "none",
             borderRadius: "5px",
-            cursor: "pointer"
+            cursor: "pointer",
             }}
         >
             ⬅️ Volver al inicio
         </button>
 
         <h1>Mi Perfil</h1>
-        <p><strong>Nombre:</strong> {usuario.nombre}</p>
-        <p><strong>Email:</strong> {usuario.email}</p>
-        <p><strong>Miembro desde:</strong> {usuario.fecha_registro}</p>
+        <p>
+            <strong>Nombre:</strong> {usuario.nombre}
+        </p>
+        <p>
+            <strong>Email:</strong> {usuario.email}
+        </p>
+        <p>
+            <strong>Miembro desde:</strong> {usuario.fecha_registro}
+        </p>
 
         <h2 style={{ marginTop: "2rem" }}>Mis reseñas</h2>
         {usuario.resenas.length === 0 ? (
             <p>Aún no has escrito reseñas.</p>
         ) : (
-            usuario.resenas.map(r => (
+            usuario.resenas.map((r) => (
             <div
                 key={r.id}
                 style={{
                 background: "#f9f9f9",
                 padding: "1rem",
                 borderRadius: "8px",
-                marginBottom: "1rem"
+                marginBottom: "1rem",
                 }}
             >
-                <p><strong>Restaurante ID:</strong> {r.restaurante_id}</p>
+                <p>
+                <strong>Restaurante ID:</strong> {r.restaurante_id}
+                </p>
                 <p>{r.comentario}</p>
                 <p>⭐ {r.valoracion}/5 — {r.fecha}</p>
             </div>
             ))
+        )}
+
+        <h2 style={{ marginTop: "2rem" }}>Mis publicaciones</h2>
+        {usuario.publicaciones && usuario.publicaciones.length > 0 ? (
+            usuario.publicaciones.map((p) => (
+            <div
+                key={p.id}
+                style={{
+                background: "#fff",
+                border: "1px solid #ccc",
+                borderRadius: "8px",
+                padding: "1rem",
+                marginBottom: "1rem",
+                }}
+            >
+                <p style={{ whiteSpace: "pre-line" }}>{p.contenido}</p>
+                {p.etiqueta_restaurante && (
+                <p>
+                    📍 <strong>Etiqueta:</strong> {p.etiqueta_restaurante}
+                </p>
+                )}
+                <p style={{ fontSize: "0.9rem", color: "#666" }}>{p.fecha}</p>
+            </div>
+            ))
+        ) : (
+            <p>No has hecho publicaciones aún.</p>
         )}
         </div>
     );

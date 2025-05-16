@@ -72,5 +72,19 @@ class LikeComentario(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     __table_args__ = (db.UniqueConstraint('comentario_id', 'usuario_id', name='unique_like_comentario'),)
 
+#Modelo Publicación
+class Publicacion(db.Model):
+    __tablename__ = "publicaciones"
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey("usuario.id"), nullable=False)
+    contenido = db.Column(db.Text, nullable=False)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    etiqueta_restaurante = db.Column(db.String(255), nullable=True)  # Puede coincidir con nombre de restaurante
+    restaurante_id = db.Column(db.Integer, db.ForeignKey("restaurante.id"), nullable=True)
+    
+    usuario = db.relationship("Usuario", backref="publicaciones")
+    restaurante = db.relationship("Restaurante", backref="publicaciones", lazy=True)
+
+
 
 

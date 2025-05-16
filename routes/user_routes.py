@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import db, Usuario, Resena
+from models import db, Usuario, Resena, Publicacion
 
 user_bp = Blueprint('usuarios', __name__)
 
@@ -11,6 +11,7 @@ def obtener_perfil():
     usuario = Usuario.query.get_or_404(user_id)
 
     reseñas = Resena.query.filter_by(usuario_id=user_id).all()
+    publicaciones = Publicacion.query.filter_by(usuario_id=user_id).order_by(Publicacion.fecha.desc()).all()
 
     return jsonify({
         "id": usuario.id,
@@ -26,8 +27,19 @@ def obtener_perfil():
                 "fecha": r.fecha.strftime('%Y-%m-%d')
             }
             for r in reseñas
+        ],
+        "publicaciones": [
+            {
+                "id": p.id,
+                "contenido": p.contenido,
+                # "imagen": p.imagen, #Lo tendremos que descomentar cuando tengamos la imagen en la creacion de la publicacion
+                "fecha": p.fecha.strftime('%Y-%m-%d'),
+                "etiqueta_restaurante": p.etiqueta_restaurante
+            }
+            for p in publicaciones
         ]
     })
+
 
 # Buscar usuarios por nombre o email
 @user_bp.route('/buscar', methods=['GET'])

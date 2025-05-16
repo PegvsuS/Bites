@@ -11,6 +11,7 @@ import Register from "./pages/Register";
 import CrearRestaurante from './pages/CrearRestaurante';
 import PerfilUsuario from "./pages/PerfilUsuario";
 import PerfilPublicoUsuario from "./pages/PerfilPublicoUsuario";
+import CrearPublicacion from "./pages/CrearPublicacion";
 
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -26,6 +27,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/" element={<App />} />
             <Route path="/perfil" element={<PerfilUsuario />} />
           <Route path="/usuarios/:id" element={<PerfilPublicoUsuario />} />
+          <Route path="/crear-publicacion" element={<CrearPublicacion />} />
         </Routes>
         <ToastContainer 
           position="bottom-left"
