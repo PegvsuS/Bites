@@ -3,8 +3,7 @@
     import { useEffect, useState } from "react";
     import { toast } from 'react-toastify';
     import { FaCheckCircle } from 'react-icons/fa';
-    import Comentarios from "../Comentarios"; 
-
+    import Comentarios from "../Comentarios";
 
     function RestauranteDetalle() {
     const { id } = useParams();
@@ -21,6 +20,16 @@
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
     const isAuthenticated = token !== null;
+
+    let userId = null;
+    if (token) {
+        try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        userId = payload.sub || payload.id;
+        } catch (err) {
+        console.error("Error al decodificar token:", err);
+        }
+    }
 
     useEffect(() => {
         fetch(`${API_URL}/api/restaurantes/${id}`)
@@ -102,11 +111,23 @@
 
     if (!restaurante) return <p>Cargando...</p>;
 
+        console.log("Token:", token);
+        console.log("userId desde token:", userId);
+        console.log("restaurante.creador_id:", restaurante.creador_id);
+        console.log("Comparación:", restaurante.creador_id === userId);
+    
     return (
         <div style={{ padding: "2rem" }}>
         <button onClick={() => navigate("/")} style={{ marginBottom: "1rem" }}>⬅️ Volver</button>
+
+        {isAuthenticated && Number(restaurante.creador_id) === Number(userId) && (
+        <button onClick={() => navigate(`/restaurantes/${restaurante.id}/editar`)}>
+            Editar
+        </button>
+        )}
+
         <h1>{restaurante.nombre}</h1>
-        <img src={`${import.meta.env.VITE_API_URL}${restaurante.imagen}`} alt={restaurante.nombre} style={{ width: "100%", maxHeight: "400px", objectFit: "cover" }} />
+        <img src={`${API_URL}${restaurante.imagen}`} alt={restaurante.nombre} style={{ width: "100%", maxHeight: "400px", objectFit: "cover" }} />
         <p><strong>Tipo de cocina:</strong> {restaurante.tipo_cocina}</p>
         <p><strong>Dirección:</strong> {restaurante.direccion}</p>
         <p><strong>Precio medio:</strong> {restaurante.precio_medio}</p>

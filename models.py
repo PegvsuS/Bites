@@ -33,6 +33,8 @@ class Restaurante(db.Model):
     imagen = db.Column(db.String(200))  # URL o path de la imagen
     url_web = db.Column(db.String(255), nullable=True)  # URL del sitio web
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
+    creador_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+
 
 # Modelo Reseña
 class Resena(db.Model):

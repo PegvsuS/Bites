@@ -20,7 +20,12 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 # Inicializar extensiones
 db.init_app(app)
 jwt = JWTManager(app)
-CORS(app)
+CORS(app, resources={r"/api/*": {
+    "origins": ["http://localhost:5173", "http://127.0.0.1:5173"],
+    "allow_headers": ["Content-Type", "Authorization"],
+    "supports_credentials": True
+}})
+
 
 # Registrar blueprints (después de configurar todo)
 from routes.auth_routes import auth_bp

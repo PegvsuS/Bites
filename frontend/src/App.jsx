@@ -173,7 +173,7 @@ function App() {
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1rem" }}>
           {restaurantes.map(r => (
-            <Link to={`/restaurante/${r.id}`} key={r.id} style={{ textDecoration: "none", color: "inherit" }}>
+            <Link to={`/restaurantes/${r.id}`} key={r.id} style={{ textDecoration: "none", color: "inherit" }}>
               <div style={{ border: "1px solid #ccc", borderRadius: "10px", padding: "1rem" }}>
                 <img src={`${API_URL}${r.imagen}`} alt={r.nombre} style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "8px" }} />
                 <h2>{r.nombre}</h2>
