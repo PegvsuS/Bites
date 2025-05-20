@@ -161,7 +161,7 @@ def eliminar_restaurante(id):
     r = Restaurante.query.get_or_404(id)
     user_id = get_jwt_identity()
 
-    if r.creador_id != user_id:
+    if r.creador_id != int(user_id):
         return jsonify({"msg": "No tienes permiso para eliminar este restaurante"}), 403
 
     db.session.delete(r)

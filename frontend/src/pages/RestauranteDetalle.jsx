@@ -1,7 +1,7 @@
-    // RestauranteDetalle.jsx
+    import { ToastContainer, toast } from "react-toastify";
+    import 'react-toastify/dist/ReactToastify.css';
     import { useParams, useNavigate, Link } from "react-router-dom";
     import { useEffect, useState } from "react";
-    import { toast } from 'react-toastify';
     import { FaCheckCircle } from 'react-icons/fa';
     import Comentarios from "../Comentarios";
 
@@ -121,10 +121,38 @@
         <button onClick={() => navigate("/")} style={{ marginBottom: "1rem" }}>⬅️ Volver</button>
 
         {isAuthenticated && Number(restaurante.creador_id) === Number(userId) && (
+        <>
         <button onClick={() => navigate(`/restaurantes/${restaurante.id}/editar`)}>
             Editar
         </button>
+            <button
+            onClick={async () => {
+                if (window.confirm("¿Seguro que quieres eliminar este restaurante?")) {
+                const res = await fetch(`${API_URL}/api/restaurantes/${restaurante.id}`, {
+                    method: "DELETE",
+                    headers: {
+                    Authorization: `Bearer ${token}`
+                    }
+                });
+
+                if (res.ok) {
+                    navigate("/", { replace: true, state: { mensaje: "eliminado", refrescar: true } });
+                } else {
+                    const data = await res.json();
+                    toast.error(data.msg || "Error al eliminar");
+                }
+                }
+            }}
+            style={{ marginLeft: "1rem", backgroundColor: "red", color: "white" }}
+            >
+            Eliminar
+            </button>
+        </>
         )}
+
+        
+            
+
 
         <h1>{restaurante.nombre}</h1>
         <img src={`${API_URL}${restaurante.imagen}`} alt={restaurante.nombre} style={{ width: "100%", maxHeight: "400px", objectFit: "cover" }} />

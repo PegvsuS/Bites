@@ -1,9 +1,13 @@
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Modal from "react-modal";
 import BuscadorUsuarios from "./components/BuscadorUsuarios";
+import { useLocation, useNavigate } from "react-router-dom";
+
+
+
 
 Modal.setAppElement("#root");
 
@@ -22,6 +26,20 @@ function App() {
 
   const API_URL = import.meta.env.VITE_API_URL;
   const isAuthenticated = localStorage.getItem("token") !== null;
+
+  const location = useLocation();
+  const navigate = useNavigate();
+
+
+  useEffect(() => {
+    if (location.state?.mensaje === "eliminado") {
+      toast.success("Restaurante eliminado correctamente");
+      fetchRestaurantes();
+
+      navigate("/", { replace: true }); // Evita que el mensaje se muestre de nuevo al refrescar
+    }
+  }, [location]);
+
 
   const fetchRestaurantes = (params = "") => {
     fetch(`${API_URL}/api/restaurantes/${params}`)
