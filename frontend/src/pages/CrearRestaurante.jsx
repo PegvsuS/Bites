@@ -19,10 +19,10 @@
     const token = localStorage.getItem("token");
 
     const handleChange = (e) => {
-        setFormData({ 
-        ...formData, 
-        [e.target.name]: e.target.value 
-        });
+        setFormData(prev => ({
+        ...prev,
+        [e.target.name]: e.target.value
+        }));
     };
 
     const handleImageUpload = async (e) => {
@@ -65,7 +65,8 @@
         return;
         }
 
-        if (isNaN(precio_medio) || Number(precio_medio) <= 0) {
+        const precio = parseFloat(precio_medio);
+        if (isNaN(precio) || precio <= 0) {
         toast.error("El precio medio debe ser un número positivo.");
         return;
         }
@@ -76,7 +77,7 @@
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({ ...formData, precio_medio: precio })
         });
 
         const data = await res.json();
@@ -96,10 +97,23 @@
             <input name="tipo_cocina" placeholder="Tipo de cocina" value={formData.tipo_cocina} onChange={handleChange} required />
             <input name="localidad" placeholder="Localidad" value={formData.localidad} onChange={handleChange} required />
             <input name="direccion" placeholder="Dirección" value={formData.direccion} onChange={handleChange} required />
-            <input type="number" name="precio_medio" placeholder="Precio medio (€)" value={formData.precio_medio} onChange={handleChange} required min={1} />
+            <input
+            type="number"
+            name="precio_medio"
+            placeholder="Precio medio (€)"
+            value={formData.precio_medio}
+            onChange={handleChange}
+            required
+            min={1}
+            />
 
             <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
             {uploading && <p>Subiendo imagen...</p>}
+            {formData.imagen && (
+            <div style={{ marginTop: "1rem" }}>
+                <img src={`${API_URL}${formData.imagen}`} alt="Vista previa" style={{ maxWidth: "100%", height: "auto", borderRadius: "8px" }} />
+            </div>
+            )}
 
             <input name="url_web" placeholder="Página web (opcional)" value={formData.url_web} onChange={handleChange} />
 
