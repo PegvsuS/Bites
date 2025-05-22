@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import db, Usuario, Resena
+from models import db, Usuario, Resena, Publicacion
 
 user_bp = Blueprint('usuarios', __name__)
 
@@ -67,3 +67,9 @@ def perfil_publico(id):
             for r in resenas
         ]
     }), 200
+
+# Obtener publicaciones de un usuario por ID
+@user_bp.route('/<int:usuario_id>/publicaciones', methods=['GET'])
+def obtener_publicaciones_de_usuario(usuario_id):
+    publicaciones = Publicacion.query.filter_by(usuario_id=usuario_id).order_by(Publicacion.fecha.desc()).all()
+    return jsonify([p.to_dict() for p in publicaciones]), 200

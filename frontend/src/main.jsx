@@ -12,8 +12,7 @@ import CrearRestaurante from './pages/CrearRestaurante';
 import PerfilUsuario from "./pages/PerfilUsuario";
 import PerfilPublicoUsuario from "./pages/PerfilPublicoUsuario";
 import EditarRestaurante from "./pages/EditarRestaurante";
-
-
+import CrearPublicacion from "./pages/CrearPublicacion"; // ✅ NUEVA IMPORTACIÓN
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -25,12 +24,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/crear-restaurante" element={<CrearRestaurante />} />
-          <Route path="/" element={<App />} />
-            <Route path="/perfil" element={<PerfilUsuario />} />
+          <Route path="/perfil" element={<PerfilUsuario />} />
           <Route path="/usuarios/:id" element={<PerfilPublicoUsuario />} />
           <Route path="/restaurantes/:id/editar" element={<EditarRestaurante />} />
-
+          <Route path="/crear-publicacion" element={<CrearPublicacion />} />
         </Routes>
+        
         <ToastContainer 
           position="bottom-left"
           autoClose={2000}

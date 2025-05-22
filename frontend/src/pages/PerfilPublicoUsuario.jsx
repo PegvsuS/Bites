@@ -1,50 +1,58 @@
-    // src/pages/PerfilPublicoUsuario.jsx
-    import { useParams, useNavigate } from "react-router-dom";
+    import { useParams } from "react-router-dom";
     import { useEffect, useState } from "react";
     import { toast } from "react-toastify";
 
     function PerfilPublicoUsuario() {
     const { id } = useParams();
     const [usuario, setUsuario] = useState(null);
+    const [publicaciones, setPublicaciones] = useState([]);
+
     const API_URL = import.meta.env.VITE_API_URL;
-    const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchPerfil = async () => {
+        const cargarPerfilYPublicaciones = async () => {
         try {
-            const res = await fetch(`${API_URL}/api/usuarios/${id}`);
-            if (!res.ok) throw new Error("No se pudo cargar el perfil del usuario");
-            const data = await res.json();
-            setUsuario(data);
+            const resUsuario = await fetch(`${API_URL}/api/usuarios/${id}`);
+            const dataUsuario = await resUsuario.json();
+            setUsuario(dataUsuario);
+
+            const resPublicaciones = await fetch(`${API_URL}/api/usuarios/${id}/publicaciones`);
+            const dataPublicaciones = await resPublicaciones.json();
+            setPublicaciones(dataPublicaciones);
         } catch (err) {
-            toast.error(err.message);
-            navigate("/");
+            toast.error("Error al cargar perfil o publicaciones");
         }
         };
 
-        fetchPerfil();
-    }, [API_URL, id, navigate]);
+        cargarPerfilYPublicaciones();
+    }, [id]);
 
-    if (!usuario) return <p>Cargando perfil del usuario...</p>;
+    if (!usuario) return <p>Cargando perfil...</p>;
 
     return (
-        <div style={{ padding: "2rem", maxWidth: "800px", margin: "auto" }}>
-        <button onClick={() => navigate("/")} style={{ marginBottom: "1rem" }}>
-            ⬅️ Volver
-        </button>
-        <h1>Perfil de {usuario.nombre}</h1>
-        <p><strong>Email:</strong> {usuario.email}</p>
-        <p><strong>Miembro desde:</strong> {usuario.fecha_registro}</p>
+        <div style={{ padding: "2rem" }}>
+        <h2>Perfil de {usuario.nombre}</h2>
+        <p>Miembro desde {usuario.fecha_registro}</p>
 
-        <h2 style={{ marginTop: "2rem" }}>Reseñas de {usuario.nombre}</h2>
-        {usuario.resenas.length === 0 ? (
-            <p>Este usuario aún no ha escrito reseñas.</p>
+        <h3 style={{ marginTop: "2rem" }}>Publicaciones</h3>
+        {publicaciones.length === 0 ? (
+            <p>Este usuario aún no ha publicado nada.</p>
         ) : (
-            usuario.resenas.map(r => (
-            <div key={r.id} style={{ background: "#f9f9f9", padding: "1rem", borderRadius: "8px", marginBottom: "1rem" }}>
-                <p><strong>Restaurante ID:</strong> {r.restaurante_id}</p>
-                <p>{r.comentario}</p>
-                <p>⭐ {r.valoracion}/5 — {r.fecha}</p>
+            publicaciones.map(pub => (
+            <div key={pub.id} style={{ background: "#f4f4f4", padding: "1rem", marginBottom: "1rem", borderRadius: "8px" }}>
+                <p>{pub.contenido}</p>
+
+                {/* Si en el futuro añades imagen, aquí puedes mostrarla */}
+                {/* pub.imagen && (
+                <img src={`${API_URL}${pub.imagen}`} alt="Imagen" style={{ maxWidth: "100%", marginTop: "0.5rem", borderRadius: "6px" }} />
+                ) */}
+
+                {pub.restaurante_etiquetado && (
+                <p style={{ fontStyle: "italic", color: "#333" }}>
+                    📍 Etiquetado: {pub.restaurante_etiquetado}
+                </p>
+                )}
+                <p style={{ fontSize: "0.9rem", color: "#666" }}>Publicado el {pub.fecha}</p>
             </div>
             ))
         )}

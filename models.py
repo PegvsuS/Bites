@@ -74,5 +74,38 @@ class LikeComentario(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     __table_args__ = (db.UniqueConstraint('comentario_id', 'usuario_id', name='unique_like_comentario'),)
 
+#Modelo Publicacion
+class Publicacion(db.Model):
+    __tablename__ = 'publicacion'
+    id = db.Column(db.Integer, primary_key=True)
+    contenido = db.Column(db.Text, nullable=False)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "usuario_id": self.usuario_id,
+            "contenido": self.contenido,
+            "fecha": self.fecha.strftime('%Y-%m-%d %H:%M:%S'),
+            "restaurante_etiquetado": self.restaurante_etiquetado
+        }
+
+#Modelo MediaPublicacion
+class MediaPublicacion(db.Model):
+    __tablename__ = "media_publicacion"
+
+    id = db.Column(db.Integer, primary_key=True)
+    publicacion_id = db.Column(db.Integer, db.ForeignKey("publicacion.id", ondelete="CASCADE"), nullable=False)
+    tipo = db.Column(db.String(10), nullable=False)  # "imagen" o "video"
+    url = db.Column(db.String(255), nullable=False)
+
+    publicacion = db.relationship("Publicacion", backref=db.backref("media", cascade="all, delete-orphan"))
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "tipo": self.tipo,
+            "url": self.url
+        }
 

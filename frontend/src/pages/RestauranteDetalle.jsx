@@ -42,33 +42,42 @@
     }, [id]);
 
     const handleSubmitResena = async (e) => {
-        e.preventDefault();
-        if (comentario.trim().length < 10) return toast.error("El comentario debe tener al menos 10 caracteres.");
-        if (valoracion < 1 || valoracion > 5) return toast.error("La valoración debe estar entre 1 y 5 estrellas.");
+    e.preventDefault();
+    if (comentario.trim().length < 10) {
+        return toast.error("El comentario debe tener al menos 10 caracteres.");
+    }
+    if (valoracion < 1 || valoracion > 5) {
+        return toast.error("La valoración debe estar entre 1 y 5 estrellas.");
+    }
 
+    try {
         const res = await fetch(`${API_URL}/api/resenas/`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ restaurante_id: restaurante.id, comentario, valoracion })
+        body: JSON.stringify({ restaurante_id: restaurante.id, comentario, valoracion }),
         });
 
         const data = await res.json();
+
         if (res.ok) {
         setComentario("");
         setValoracion(5);
-        setResenas([...resenas, {
-            ...data.nuevaResena,
-            usuario: "Tú",
-            fecha: new Date().toISOString().split("T")[0]
-        }]);
+        const nuevasResenas = await fetch(`${API_URL}/api/resenas/restaurante/${id}`);
+        const dataNuevas = await nuevasResenas.json();
+        setResenas(dataNuevas);
         toast.success("¡Reseña publicada exitosamente!");
         } else {
         toast.error(data.msg || "Error al enviar reseña");
         }
+    } catch (error) {
+        toast.error("Error de red al enviar reseña");
+    }
     };
+
+
 
     const handleDeleteResena = async (resenaId) => {
         if (!window.confirm("¿Seguro que quieres eliminar esta reseña?")) return;
