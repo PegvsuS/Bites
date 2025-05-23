@@ -90,3 +90,37 @@ def publicaciones_mias():
     publicaciones = Publicacion.query.filter_by(usuario_id=user_id).order_by(Publicacion.fecha.desc()).all()
     return jsonify([p.to_dict() for p in publicaciones]), 200
 
+
+#Editar publicación
+@publication_bp.route('/<int:id>', methods=['PUT'])
+@jwt_required()
+def editar_publicacion(id):
+    user_id = get_jwt_identity()
+    publicacion = Publicacion.query.get_or_404(id)
+
+    if publicacion.usuario_id != user_id:
+        return jsonify({"msg": "No tienes permiso para editar esta publicación"}), 403
+
+    data = request.form
+    contenido = data.get("contenido", "").strip()
+    if contenido:
+        publicacion.contenido = contenido
+
+    db.session.commit()
+    return jsonify({"msg": "Publicación actualizada"}), 200
+
+#Eliminar publicación
+@publication_bp.route('/<int:id>', methods=['DELETE'])
+@jwt_required()
+def eliminar_publicacion(id):
+    user_id = get_jwt_identity()
+    publicacion = Publicacion.query.get_or_404(id)
+
+    if publicacion.usuario_id != user_id:
+        return jsonify({"msg": "No tienes permiso para eliminar esta publicación"}), 403
+
+    db.session.delete(publicacion)
+    db.session.commit()
+    return jsonify({"msg": "Publicación eliminada"}), 200
+
+
