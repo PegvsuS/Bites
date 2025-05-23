@@ -4,6 +4,7 @@
     import { Swiper, SwiperSlide } from "swiper/react";
     import "swiper/css";
 
+
     function PerfilUsuario() {
     const [usuario, setUsuario] = useState(null);
     const [publicaciones, setPublicaciones] = useState([]);
@@ -52,6 +53,29 @@
         obtenerPublicaciones();
     }, [API_URL, token]);
 
+    const eliminarPublicacion = async (id) => {
+        if (!window.confirm("¿Eliminar esta publicación?")) return;
+
+        try {
+        const res = await fetch(`${API_URL}/api/publicaciones/${id}`, {
+            method: "DELETE",
+            headers: {
+            Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (res.ok) {
+            setPublicaciones(publicaciones.filter(p => p.id !== id));
+            toast.success("Publicación eliminada");
+        } else {
+            const data = await res.json();
+            toast.error(data.msg || "Error al eliminar");
+        }
+        } catch (err) {
+        toast.error("Error de red al eliminar");
+        }
+    };
+
     if (!usuario) return <p>Cargando perfil...</p>;
 
     return (
@@ -83,6 +107,22 @@
                     ))}
                 </Swiper>
                 )}
+
+                {/* Botones de editar y eliminar */}
+                <div style={{ marginTop: "0.5rem" }}>
+                <button
+                    onClick={() => toast.info("Funcionalidad de edición pendiente")}
+                    style={{ marginRight: "0.5rem" }}
+                >
+                    Editar
+                </button>
+                <button
+                    onClick={() => eliminarPublicacion(pub.id)}
+                    style={{ background: "red", color: "white" }}
+                >
+                    Eliminar
+                </button>
+                </div>
             </div>
             ))
         )}
