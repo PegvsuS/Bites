@@ -40,33 +40,53 @@ def crear_publicacion():
     contenido = request.form.get("contenido", "").strip()
     archivos = request.files.getlist("media")
 
+    # Validación 1: contenido vacío y sin archivos
     if not contenido and not archivos:
         return jsonify({"msg": "La publicación no puede estar vacía"}), 400
 
+    # Validación 2: número máximo de archivos
+    if len(archivos) > 10:
+        return jsonify({"msg": "Máximo 10 archivos por publicación"}), 400
+
+    # Crear publicación
     publicacion = Publicacion(usuario_id=usuario_id, contenido=contenido, fecha=datetime.utcnow())
     db.session.add(publicacion)
     db.session.commit()  # Para obtener el ID
 
+    extensiones_validas = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi']
+
     for archivo in archivos:
-        if archivo and archivo.filename != "":
-            filename = secure_filename(archivo.filename)
-            ext = filename.rsplit('.', 1)[-1].lower()
+        if not archivo or archivo.filename == "":
+            continue
 
-            if ext not in ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi']:
-                continue  # Ignorar archivo no válido
+        ext = archivo.filename.rsplit('.', 1)[-1].lower()
+        if ext not in extensiones_validas:
+            continue  # Ignorar archivo no permitido
 
-            filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-            archivo.save(filepath)
+        filename = secure_filename(archivo.filename)
+        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        archivo.save(filepath)
 
-            tipo = "video" if ext in ['mp4', 'mov', 'avi'] else "imagen"
+        tipo = "video" if ext in ['mp4', 'mov', 'avi'] else "imagen"
 
-            media = MediaPublicacion(
-                publicacion_id=publicacion.id,
-                archivo=f"/static/uploads/{filename}",
-                tipo=tipo
-            )
-            db.session.add(media)
+        media = MediaPublicacion(
+            publicacion_id=publicacion.id,
+            url=f"/static/uploads/{filename}",
+            tipo=tipo
+        )
+        db.session.add(media)
 
     db.session.commit()
 
-    return jsonify({"msg": "Publicación creada", "id": publicacion.id}), 201
+    return jsonify({
+        "msg": "Publicación creada",
+        "id": publicacion.id
+    }), 201
+
+@publication_bp.route("/mias", methods=["GET"])
+@jwt_required()
+def publicaciones_mias():
+    user_id = get_jwt_identity()
+    publicaciones = Publicacion.query.filter_by(usuario_id=user_id).order_by(Publicacion.fecha.desc()).all()
+    return jsonify([p.to_dict() for p in publicaciones]), 200
+

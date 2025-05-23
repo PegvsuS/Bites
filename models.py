@@ -77,10 +77,14 @@ class LikeComentario(db.Model):
 #Modelo Publicacion
 class Publicacion(db.Model):
     __tablename__ = 'publicacion'
+
     id = db.Column(db.Integer, primary_key=True)
-    contenido = db.Column(db.Text, nullable=False)
-    fecha = db.Column(db.DateTime, default=datetime.utcnow)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    contenido = db.Column(db.Text, nullable=True)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    restaurante_etiquetado = db.Column(db.String(255), nullable=True)
+
+    media = db.relationship('MediaPublicacion', back_populates='publicacion', cascade='all, delete-orphan')
 
     def to_dict(self):
         return {
@@ -88,7 +92,8 @@ class Publicacion(db.Model):
             "usuario_id": self.usuario_id,
             "contenido": self.contenido,
             "fecha": self.fecha.strftime('%Y-%m-%d %H:%M:%S'),
-            "restaurante_etiquetado": self.restaurante_etiquetado
+            "restaurante_etiquetado": self.restaurante_etiquetado,
+            "media": [m.to_dict() for m in self.media]
         }
 
 #Modelo MediaPublicacion
@@ -100,7 +105,7 @@ class MediaPublicacion(db.Model):
     tipo = db.Column(db.String(10), nullable=False)  # "imagen" o "video"
     url = db.Column(db.String(255), nullable=False)
 
-    publicacion = db.relationship("Publicacion", backref=db.backref("media", cascade="all, delete-orphan"))
+    publicacion = db.relationship('Publicacion', back_populates='media')
 
     def to_dict(self):
         return {

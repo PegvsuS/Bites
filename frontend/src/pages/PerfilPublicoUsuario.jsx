@@ -1,12 +1,13 @@
     import { useParams } from "react-router-dom";
     import { useEffect, useState } from "react";
     import { toast } from "react-toastify";
+    import { Swiper, SwiperSlide } from 'swiper/react';
+    import 'swiper/css';
 
     function PerfilPublicoUsuario() {
     const { id } = useParams();
     const [usuario, setUsuario] = useState(null);
     const [publicaciones, setPublicaciones] = useState([]);
-
     const API_URL = import.meta.env.VITE_API_URL;
 
     useEffect(() => {
@@ -39,20 +40,45 @@
             <p>Este usuario aún no ha publicado nada.</p>
         ) : (
             publicaciones.map(pub => (
-            <div key={pub.id} style={{ background: "#f4f4f4", padding: "1rem", marginBottom: "1rem", borderRadius: "8px" }}>
+            <div
+                key={pub.id}
+                style={{
+                background: "#f4f4f4",
+                padding: "1rem",
+                marginBottom: "1rem",
+                borderRadius: "8px"
+                }}
+            >
                 <p>{pub.contenido}</p>
 
-                {/* Si en el futuro añades imagen, aquí puedes mostrarla */}
-                {/* pub.imagen && (
-                <img src={`${API_URL}${pub.imagen}`} alt="Imagen" style={{ maxWidth: "100%", marginTop: "0.5rem", borderRadius: "6px" }} />
-                ) */}
+                {/* Carrusel con imágenes/videos */}
+                {Array.isArray(pub.media) && pub.media.length > 0 && (
+                <Swiper spaceBetween={10} slidesPerView={1} style={{ marginTop: "1rem" }}>
+                    {pub.media.map((m, index) => (
+                    <SwiperSlide key={index}>
+                        {m.tipo === "video" ? (
+                        <video controls style={{ width: "100%", borderRadius: "8px" }}>
+                            <source src={`${API_URL}${m.url}`} type="video/mp4" />
+                            Tu navegador no soporta el video.
+                        </video>
+                        ) : (
+                        <img
+                            src={`${API_URL}${m.url}`}
+                            alt={`media-${index}`}
+                            style={{ width: "100%", borderRadius: "8px" }}
+                        />
+                        )}
+                    </SwiperSlide>
+                    ))}
+                </Swiper>
+                )}
 
                 {pub.restaurante_etiquetado && (
                 <p style={{ fontStyle: "italic", color: "#333" }}>
                     📍 Etiquetado: {pub.restaurante_etiquetado}
                 </p>
                 )}
-                <p style={{ fontSize: "0.9rem", color: "#666" }}>Publicado el {pub.fecha}</p>
+                <p style={{ fontSize: "0.9rem", color: "#666" }}>Publicado el {new Date(pub.fecha).toLocaleDateString()}</p>
             </div>
             ))
         )}
