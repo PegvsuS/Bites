@@ -16,6 +16,11 @@ import CrearPublicacion from "./pages/CrearPublicacion";
 import EditarPublicacion from "./pages/EditarPublicacion";
 import BotonCrearPublicacion from "./components/BotonCrearPublicacion";
 import ConfiguracionUsuario from "./pages/ConfiguracionUsuario";
+import AdminPanel from "./pages/AdminPanel";
+
+
+<Route path="/admin" element={<AdminPanel />} />
+
 
 
 
@@ -35,6 +40,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/crear-publicacion" element={<CrearPublicacion />} />
           <Route path="/publicaciones/:id/editar" element={<EditarPublicacion />} />
           <Route path="/configuracion" element={<ConfiguracionUsuario />} />
+          <Route path="/admin" element={<AdminPanel />} />
 
         </Routes>
 

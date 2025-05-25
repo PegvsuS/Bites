@@ -16,6 +16,7 @@ def obtener_perfil():
         "id": usuario.id,
         "nombre": usuario.nombre,
         "email": usuario.email,
+        "role": usuario.role,
         "fecha_registro": usuario.fecha_registro.strftime('%Y-%m-%d'),
         "resenas": [
             {

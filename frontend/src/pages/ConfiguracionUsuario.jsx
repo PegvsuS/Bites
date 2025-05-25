@@ -9,6 +9,7 @@
     const [email, setEmail] = useState("");
     const [contraseñaActual, setContraseñaActual] = useState("");
     const [nuevaContraseña, setNuevaContraseña] = useState("");
+    const [rol, setRol] = useState("");
 
     const token = localStorage.getItem("token");
     const API_URL = import.meta.env.VITE_API_URL;
@@ -24,6 +25,7 @@
             if (res.ok) {
             setNombre(data.nombre);
             setEmail(data.email);
+            setRol(data.role);
             } else {
             toast.error(data.msg || "Error al cargar usuario");
             }
@@ -142,9 +144,14 @@
             <button onClick={() => setPestana("perfil")} style={{ marginRight: "1rem" }}>
             Perfil de usuario
             </button>
-            <button onClick={() => setPestana("seguridad")}>
+            <button onClick={() => setPestana("seguridad")} style={{ marginRight: "1rem" }}>
             Seguridad
             </button>
+            {rol === "admin" && (
+            <button onClick={() => setPestana("admin")}>
+                Administración
+            </button>
+            )}
         </div>
 
         {pestana === "perfil" && (
@@ -190,6 +197,14 @@
             <button onClick={eliminarCuenta} style={{ backgroundColor: "red", color: "white" }}>
                 Eliminar mi cuenta
             </button>
+            </div>
+        )}
+
+        {pestana === "admin" && rol === "admin" && (
+            <div>
+            <h3>Administración</h3>
+            <p>Desde aquí puedes gestionar usuarios y contenido del sistema.</p>
+            <button onClick={() => navigate("/admin")}>Ir al panel de administración</button>
             </div>
         )}
         </div>
