@@ -93,6 +93,7 @@ function App() {
               <>
                 <a href="/crear-restaurante" style={{ marginRight: "1rem" }}>➕ Añadir restaurante</a>
                 <a href="/perfil" style={{ marginRight: "1rem" }}>👤 Mi perfil</a>
+                <a href="/configuracion" style={{ marginRight: "1rem" }}>⚙️ Configuración</a>
                 <button onClick={() => {
                   localStorage.removeItem("token");
                   window.location.reload();

@@ -15,6 +15,8 @@ import EditarRestaurante from "./pages/EditarRestaurante";
 import CrearPublicacion from "./pages/CrearPublicacion";
 import EditarPublicacion from "./pages/EditarPublicacion";
 import BotonCrearPublicacion from "./components/BotonCrearPublicacion";
+import ConfiguracionUsuario from "./pages/ConfiguracionUsuario";
+
 
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -32,6 +34,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/restaurantes/:id/editar" element={<EditarRestaurante />} />
           <Route path="/crear-publicacion" element={<CrearPublicacion />} />
           <Route path="/publicaciones/:id/editar" element={<EditarPublicacion />} />
+          <Route path="/configuracion" element={<ConfiguracionUsuario />} />
+
         </Routes>
 
       {/* Botón flotante visible en toda la app */}
