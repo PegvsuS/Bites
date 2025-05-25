@@ -111,7 +111,7 @@
                 {/* Botones de editar y eliminar */}
                 <div style={{ marginTop: "0.5rem" }}>
                 <button
-                    onClick={() => toast.info("Funcionalidad de edición pendiente")}
+                    onClick={() => navigate(`/publicaciones/${pub.id}/editar`)}
                     style={{ marginRight: "0.5rem" }}
                 >
                     Editar

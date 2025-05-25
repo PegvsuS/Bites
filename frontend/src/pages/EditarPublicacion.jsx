@@ -12,6 +12,7 @@
 
     const [contenido, setContenido] = useState("");
     const [mediaExistente, setMediaExistente] = useState([]);
+    const [mediaEliminada, setMediaEliminada] = useState([]);
     const [archivosNuevos, setArchivosNuevos] = useState([]);
     const [previsualizaciones, setPrevisualizaciones] = useState([]);
 
@@ -71,11 +72,20 @@
         };
     }, [previsualizaciones]);
 
+    const eliminarMediaExistente = (index) => {
+        const media = mediaExistente[index];
+        setMediaEliminada(prev => [...prev, media.id]);
+        const actualizada = [...mediaExistente];
+        actualizada.splice(index, 1);
+        setMediaExistente(actualizada);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData();
         formData.append("contenido", contenido);
         archivosNuevos.forEach(file => formData.append("media", file));
+        mediaEliminada.forEach(id => formData.append("media_eliminada", id));
 
         try {
         const res = await fetch(`${API_URL}/api/publicaciones/${id}`, {
@@ -114,13 +124,34 @@
             <Swiper slidesPerView={1} spaceBetween={10}>
                 {mediaExistente.map((m, i) => (
                 <SwiperSlide key={`existente-${i}`}>
+                    <div style={{ position: "relative" }}>
                     {m.tipo === "video" ? (
-                    <video src={`${API_URL}${m.url}`} controls style={{ width: "100%" }} />
+                        <video src={`${API_URL}${m.url}`} controls style={{ width: "100%" }} />
                     ) : (
-                    <img src={`${API_URL}${m.url}`} alt="media" style={{ width: "100%" }} />
+                        <img src={`${API_URL}${m.url}`} alt="media" style={{ width: "100%" }} />
                     )}
+                    <button
+                        type="button"
+                        onClick={() => eliminarMediaExistente(i)}
+                        style={{
+                        position: "absolute",
+                        top: "10px",
+                        right: "10px",
+                        background: "rgba(255, 0, 0, 0.8)",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "50%",
+                        padding: "0.5rem",
+                        cursor: "pointer",
+                        fontSize: "1rem",
+                        }}
+                    >
+                        ✕
+                    </button>
+                    </div>
                 </SwiperSlide>
                 ))}
+
                 {previsualizaciones.map((m, i) => (
                 <SwiperSlide key={`preview-${i}`}>
                     {m.type === "video" ? (
