@@ -46,6 +46,10 @@ app.register_blueprint(user_bp, url_prefix="/api/usuarios")
 from routes.publication_routes import publication_bp
 app.register_blueprint(publication_bp, url_prefix="/api/publicaciones")
 
+from routes.notification_routes import notification_bp
+app.register_blueprint(notification_bp, url_prefix='/api/notificaciones')
+
+
 # Crear tablas en la BD
 with app.app_context():
     db.create_all()

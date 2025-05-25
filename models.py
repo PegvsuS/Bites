@@ -14,6 +14,8 @@ class Usuario(db.Model):
     password = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(20), default='user')
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
+    notificaciones = db.relationship('Notificacion', backref='usuario', lazy=True, cascade="all, delete-orphan")
+
 
     def set_password(self, password):
         self.password = generate_password_hash(password).decode('utf8')
@@ -113,4 +115,15 @@ class MediaPublicacion(db.Model):
             "tipo": self.tipo,
             "url": self.url
         }
+    
+#Modelo Notificacion
+class Notificacion(db.Model):
+    __tablename__ = "notificacion"
+
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    mensaje = db.Column(db.Text, nullable=False)
+    leida = db.Column(db.Boolean, default=False)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    
 
