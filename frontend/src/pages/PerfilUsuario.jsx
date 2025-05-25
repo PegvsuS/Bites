@@ -4,7 +4,6 @@
     import { Swiper, SwiperSlide } from "swiper/react";
     import "swiper/css";
 
-
     function PerfilUsuario() {
     const [usuario, setUsuario] = useState(null);
     const [publicaciones, setPublicaciones] = useState([]);
@@ -91,6 +90,11 @@
         ) : (
             publicaciones.map(pub => (
             <div key={pub.id} style={{ background: "#f9f9f9", padding: "1rem", marginBottom: "1rem", borderRadius: "8px" }}>
+                {pub.restaurante_etiquetado && (
+                <p style={{ fontWeight: "bold", color: "#444" }}>
+                    📍 Restaurante: {pub.restaurante_etiquetado}
+                </p>
+                )}
                 <p>{pub.contenido}</p>
                 <p style={{ fontSize: "0.9rem", color: "#666" }}>{pub.fecha}</p>
 

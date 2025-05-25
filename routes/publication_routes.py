@@ -38,6 +38,7 @@ def subir_media():
 def crear_publicacion():
     usuario_id = get_jwt_identity()
     contenido = request.form.get("contenido", "").strip()
+    restaurante_etiquetado = request.form.get("restaurante_etiquetado", "").strip()
     archivos = request.files.getlist("media")
 
     # Validación 1: contenido vacío y sin archivos
@@ -49,7 +50,12 @@ def crear_publicacion():
         return jsonify({"msg": "Máximo 10 archivos por publicación"}), 400
 
     # Crear publicación
-    publicacion = Publicacion(usuario_id=usuario_id, contenido=contenido, fecha=datetime.utcnow())
+    publicacion = Publicacion(
+        usuario_id=usuario_id,
+        contenido=contenido,
+        fecha=datetime.utcnow(),
+        restaurante_etiquetado=restaurante_etiquetado if restaurante_etiquetado else None
+    )
     db.session.add(publicacion)
     db.session.commit()  # Para obtener el ID
 
@@ -83,6 +89,7 @@ def crear_publicacion():
         "id": publicacion.id
     }), 201
 
+
 @publication_bp.route("/mias", methods=["GET"])
 @jwt_required()
 def publicaciones_mias():
@@ -98,14 +105,17 @@ def editar_publicacion(id):
     user_id = int(get_jwt_identity())
     publicacion = Publicacion.query.get_or_404(id)
 
-    
     if publicacion.usuario_id != user_id:
         return jsonify({"msg": "No tienes permiso para editar esta publicación"}), 403
 
     data = request.form
+
     contenido = data.get("contenido", "").strip()
     if contenido:
         publicacion.contenido = contenido
+
+    restaurante_etiquetado = data.get("restaurante_etiquetado", "").strip()
+    publicacion.restaurante_etiquetado = restaurante_etiquetado if restaurante_etiquetado else None
 
     # 1. Obtener media a eliminar
     ids_a_eliminar = request.form.getlist("media_eliminada")
@@ -154,16 +164,17 @@ def editar_publicacion(id):
             tipo=tipo
         )
         db.session.add(media)
-    
+
     db.session.commit()
     return jsonify({"msg": "Publicación actualizada"}), 200
+
 
 
 #Eliminar publicación
 @publication_bp.route('/<int:id>', methods=['DELETE'])
 @jwt_required()
 def eliminar_publicacion(id):
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     publicacion = Publicacion.query.get_or_404(id)
 
     if publicacion.usuario_id != user_id:

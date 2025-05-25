@@ -6,6 +6,7 @@
 
     function CrearPublicacion() {
     const [contenido, setContenido] = useState("");
+    const [restauranteEtiquetado, setRestauranteEtiquetado] = useState("");
     const [archivos, setArchivos] = useState([]);
     const [previsualizaciones, setPrevisualizaciones] = useState([]);
     const [uploading, setUploading] = useState(false);
@@ -14,7 +15,6 @@
     const API_URL = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem("token");
 
-    //Liberar URLs temporales cuando el componente se desmonta
     useEffect(() => {
         return () => {
         previsualizaciones.forEach(p => URL.revokeObjectURL(p.url));
@@ -29,7 +29,6 @@
         return;
         }
 
-        //Validar tipo de archivo permitido
         const tiposPermitidos = ["image/jpeg", "image/png", "image/webp", "image/gif", "video/mp4", "video/webm"];
         const archivosValidos = files.filter(file => tiposPermitidos.includes(file.type));
 
@@ -56,6 +55,7 @@
 
         const formData = new FormData();
         formData.append("contenido", contenido);
+        formData.append("restaurante_etiquetado", restauranteEtiquetado.trim());
         archivos.forEach(file => {
         formData.append("media", file);
         });
@@ -94,6 +94,14 @@
             value={contenido}
             onChange={(e) => setContenido(e.target.value)}
             style={{ width: "100%", minHeight: "100px", marginBottom: "1rem" }}
+            />
+
+            <input
+            type="text"
+            value={restauranteEtiquetado}
+            onChange={(e) => setRestauranteEtiquetado(e.target.value)}
+            placeholder="Restaurante etiquetado (opcional)"
+            style={{ width: "100%", marginBottom: "1rem" }}
             />
 
             <input

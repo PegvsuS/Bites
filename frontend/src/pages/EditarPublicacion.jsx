@@ -11,6 +11,7 @@
     const token = localStorage.getItem("token");
 
     const [contenido, setContenido] = useState("");
+    const [restauranteEtiquetado, setRestauranteEtiquetado] = useState("");
     const [mediaExistente, setMediaExistente] = useState([]);
     const [mediaEliminada, setMediaEliminada] = useState([]);
     const [archivosNuevos, setArchivosNuevos] = useState([]);
@@ -23,6 +24,7 @@
             const data = await res.json();
             if (res.ok) {
             setContenido(data.contenido);
+            setRestauranteEtiquetado(data.restaurante_etiquetado || "");
             setMediaExistente(data.media || []);
             } else {
             toast.error(data.msg || "Error al cargar publicación");
@@ -84,6 +86,7 @@
         e.preventDefault();
         const formData = new FormData();
         formData.append("contenido", contenido);
+        formData.append("restaurante_etiquetado", restauranteEtiquetado);
         archivosNuevos.forEach(file => formData.append("media", file));
         mediaEliminada.forEach(id => formData.append("media_eliminada", id));
 
@@ -116,6 +119,14 @@
             onChange={(e) => setContenido(e.target.value)}
             placeholder="Contenido"
             style={{ width: "100%", minHeight: "100px", marginBottom: "1rem" }}
+            />
+
+            <input
+            type="text"
+            value={restauranteEtiquetado}
+            onChange={(e) => setRestauranteEtiquetado(e.target.value)}
+            placeholder="Restaurante etiquetado (opcional)"
+            style={{ width: "100%", marginBottom: "1rem" }}
             />
 
             <input type="file" accept="image/*,video/*" multiple onChange={handleArchivos} />

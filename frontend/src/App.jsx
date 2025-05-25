@@ -1,13 +1,9 @@
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Modal from "react-modal";
 import BuscadorUsuarios from "./components/BuscadorUsuarios";
-import { useLocation, useNavigate } from "react-router-dom";
-
-
-
 
 Modal.setAppElement("#root");
 
@@ -30,16 +26,13 @@ function App() {
   const location = useLocation();
   const navigate = useNavigate();
 
-
   useEffect(() => {
     if (location.state?.mensaje === "eliminado") {
       toast.success("Restaurante eliminado correctamente");
       fetchRestaurantes();
-
-      navigate("/", { replace: true }); // Evita que el mensaje se muestre de nuevo al refrescar
+      navigate("/", { replace: true });
     }
   }, [location]);
-
 
   const fetchRestaurantes = (params = "") => {
     fetch(`${API_URL}/api/restaurantes/${params}`)
@@ -110,7 +103,6 @@ function App() {
             )}
           </div>
 
-          {/* Buscador de usuarios */}
           <BuscadorUsuarios />
         </div>
 
@@ -209,6 +201,29 @@ function App() {
           ))}
         </div>
       </div>
+
+      {/* Botón flotante para crear publicación */}
+      {isAuthenticated && (
+        <button
+          onClick={() => navigate("/crear-publicacion")}
+          style={{
+            position: "fixed",
+            bottom: "2rem",
+            right: "2rem",
+            backgroundColor: "#007bff",
+            color: "white",
+            border: "none",
+            padding: "0.75rem 1.2rem",
+            borderRadius: "9999px",
+            fontSize: "1.5rem",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+            cursor: "pointer",
+            zIndex: 1000
+          }}
+        >
+          ➕
+        </button>
+      )}
     </>
   );
 }

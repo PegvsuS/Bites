@@ -49,9 +49,14 @@
                 borderRadius: "8px"
                 }}
             >
+                {pub.restaurante_etiquetado && (
+                <p style={{ fontWeight: "bold", color: "#444" }}>
+                    📍 Restaurante: {pub.restaurante_etiquetado}
+                </p>
+                )}
+
                 <p>{pub.contenido}</p>
 
-                {/* Carrusel con imágenes/videos */}
                 {Array.isArray(pub.media) && pub.media.length > 0 && (
                 <Swiper spaceBetween={10} slidesPerView={1} style={{ marginTop: "1rem" }}>
                     {pub.media.map((m, index) => (
@@ -73,12 +78,9 @@
                 </Swiper>
                 )}
 
-                {pub.restaurante_etiquetado && (
-                <p style={{ fontStyle: "italic", color: "#333" }}>
-                    📍 Etiquetado: {pub.restaurante_etiquetado}
+                <p style={{ fontSize: "0.9rem", color: "#666" }}>
+                Publicado el {new Date(pub.fecha).toLocaleDateString()}
                 </p>
-                )}
-                <p style={{ fontSize: "0.9rem", color: "#666" }}>Publicado el {new Date(pub.fecha).toLocaleDateString()}</p>
             </div>
             ))
         )}

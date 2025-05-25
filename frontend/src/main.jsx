@@ -14,6 +14,7 @@ import PerfilPublicoUsuario from "./pages/PerfilPublicoUsuario";
 import EditarRestaurante from "./pages/EditarRestaurante";
 import CrearPublicacion from "./pages/CrearPublicacion";
 import EditarPublicacion from "./pages/EditarPublicacion";
+import BotonCrearPublicacion from "./components/BotonCrearPublicacion";
 
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -32,6 +33,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/crear-publicacion" element={<CrearPublicacion />} />
           <Route path="/publicaciones/:id/editar" element={<EditarPublicacion />} />
         </Routes>
+
+      {/* Botón flotante visible en toda la app */}
+        
+        <BotonCrearPublicacion />
         
         <ToastContainer 
           position="bottom-left"
