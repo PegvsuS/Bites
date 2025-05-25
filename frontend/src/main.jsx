@@ -12,7 +12,9 @@ import CrearRestaurante from './pages/CrearRestaurante';
 import PerfilUsuario from "./pages/PerfilUsuario";
 import PerfilPublicoUsuario from "./pages/PerfilPublicoUsuario";
 import EditarRestaurante from "./pages/EditarRestaurante";
-import CrearPublicacion from "./pages/CrearPublicacion"; // ✅ NUEVA IMPORTACIÓN
+import CrearPublicacion from "./pages/CrearPublicacion";
+import EditarPublicacion from "./pages/EditarPublicacion";
+
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -28,6 +30,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/usuarios/:id" element={<PerfilPublicoUsuario />} />
           <Route path="/restaurantes/:id/editar" element={<EditarRestaurante />} />
           <Route path="/crear-publicacion" element={<CrearPublicacion />} />
+          <Route path="/publicaciones/:id/editar" element={<EditarPublicacion />} />
         </Routes>
         
         <ToastContainer 

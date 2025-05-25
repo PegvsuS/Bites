@@ -90,3 +90,94 @@ def publicaciones_mias():
     publicaciones = Publicacion.query.filter_by(usuario_id=user_id).order_by(Publicacion.fecha.desc()).all()
     return jsonify([p.to_dict() for p in publicaciones]), 200
 
+
+#Editar publicación
+@publication_bp.route('/<int:id>', methods=['PUT'])
+@jwt_required()
+def editar_publicacion(id):
+    user_id = int(get_jwt_identity())
+    publicacion = Publicacion.query.get_or_404(id)
+
+    
+    if publicacion.usuario_id != user_id:
+        return jsonify({"msg": "No tienes permiso para editar esta publicación"}), 403
+
+    data = request.form
+    contenido = data.get("contenido", "").strip()
+    if contenido:
+        publicacion.contenido = contenido
+
+    # 1. Obtener media a eliminar
+    ids_a_eliminar = request.form.getlist("media_eliminada")
+
+    # 2. Obtener media actual (para validar el total después)
+    media_actual = MediaPublicacion.query.filter_by(publicacion_id=publicacion.id).all()
+    media_restante = [m for m in media_actual if str(m.id) not in ids_a_eliminar]
+    cantidad_restante = len(media_restante)
+
+    # 3. Obtener nuevos archivos
+    archivos = request.files.getlist("media")
+    cantidad_nuevos = len([a for a in archivos if a and a.filename != ""])
+
+    # 4. Validar máximo de 10 archivos
+    if cantidad_restante + cantidad_nuevos > 10:
+        return jsonify({"msg": "Máximo 10 archivos por publicación"}), 400
+
+    # 5. Eliminar media marcada
+    for media_id in ids_a_eliminar:
+        media = MediaPublicacion.query.filter_by(id=media_id, publicacion_id=publicacion.id).first()
+        if media:
+            filepath = os.path.join(current_app.root_path, media.url.lstrip('/'))
+            if os.path.exists(filepath):
+                os.remove(filepath)
+            db.session.delete(media)
+
+    # 6. Guardar nuevos archivos
+    extensiones_validas = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi']
+    for archivo in archivos:
+        if not archivo or archivo.filename == "":
+            continue
+
+        ext = archivo.filename.rsplit('.', 1)[-1].lower()
+        if ext not in extensiones_validas:
+            continue
+
+        filename = secure_filename(archivo.filename)
+        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        archivo.save(filepath)
+
+        tipo = "video" if ext in ['mp4', 'mov', 'avi'] else "imagen"
+
+        media = MediaPublicacion(
+            publicacion_id=publicacion.id,
+            url=f"/static/uploads/{filename}",
+            tipo=tipo
+        )
+        db.session.add(media)
+    
+    db.session.commit()
+    return jsonify({"msg": "Publicación actualizada"}), 200
+
+
+#Eliminar publicación
+@publication_bp.route('/<int:id>', methods=['DELETE'])
+@jwt_required()
+def eliminar_publicacion(id):
+    user_id = get_jwt_identity()
+    publicacion = Publicacion.query.get_or_404(id)
+
+    if publicacion.usuario_id != user_id:
+        return jsonify({"msg": "No tienes permiso para eliminar esta publicación"}), 403
+
+    db.session.delete(publicacion)
+    db.session.commit()
+    return jsonify({"msg": "Publicación eliminada"}), 200
+
+# Obtener una publicación específica
+@publication_bp.route('/<int:id>', methods=['GET'])
+def obtener_publicacion(id):
+    publicacion = Publicacion.query.get_or_404(id)
+    return jsonify(publicacion.to_dict()), 200
+
+
+
