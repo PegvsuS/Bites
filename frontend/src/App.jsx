@@ -1,7 +1,7 @@
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Modal from "react-modal";
 import BuscadorUsuarios from "./components/BuscadorUsuarios";
 
@@ -23,6 +23,17 @@ function App() {
   const API_URL = import.meta.env.VITE_API_URL;
   const isAuthenticated = localStorage.getItem("token") !== null;
 
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.state?.mensaje === "eliminado") {
+      toast.success("Restaurante eliminado correctamente");
+      fetchRestaurantes();
+      navigate("/", { replace: true });
+    }
+  }, [location]);
+
   const fetchRestaurantes = (params = "") => {
     fetch(`${API_URL}/api/restaurantes/${params}`)
       .then(res => res.json())
@@ -36,28 +47,24 @@ function App() {
 
   useEffect(() => {
     const query = [];
-
-    if (filtros.localidad) query.push(`localidad=${filtros.localidad}`);
+    if (filtros.localidad)   query.push(`localidad=${filtros.localidad}`);
     if (filtros.tipo_cocina) query.push(`tipo_cocina=${filtros.tipo_cocina}`);
-    if (filtros.precioMin) query.push(`precio_min=${filtros.precioMin}`);
-    if (filtros.precioMax) query.push(`precio_max=${filtros.precioMax}`);
+    if (filtros.precioMin)   query.push(`precio_min=${filtros.precioMin}`);
+    if (filtros.precioMax)   query.push(`precio_max=${filtros.precioMax}`);
     if (filtros.valoracionMin) query.push(`valoracion_min=${filtros.valoracionMin}`);
-    if (ordenSeleccionado) query.push(`ordenar_por=${ordenSeleccionado}`);
-
+    if (ordenSeleccionado)   query.push(`ordenar_por=${ordenSeleccionado}`);
     const params = query.length ? "?" + query.join("&") : "";
     fetchRestaurantes(params);
   }, [ordenSeleccionado]);
 
   const aplicarFiltros = () => {
     const query = [];
-
-    if (filtros.localidad) query.push(`localidad=${filtros.localidad}`);
+    if (filtros.localidad)   query.push(`localidad=${filtros.localidad}`);
     if (filtros.tipo_cocina) query.push(`tipo_cocina=${filtros.tipo_cocina}`);
-    if (filtros.precioMin) query.push(`precio_min=${filtros.precioMin}`);
-    if (filtros.precioMax) query.push(`precio_max=${filtros.precioMax}`);
+    if (filtros.precioMin)   query.push(`precio_min=${filtros.precioMin}`);
+    if (filtros.precioMax)   query.push(`precio_max=${filtros.precioMax}`);
     if (filtros.valoracionMin) query.push(`valoracion_min=${filtros.valoracionMin}`);
-    if (ordenSeleccionado) query.push(`ordenar_por=${ordenSeleccionado}`);
-
+    if (ordenSeleccionado)   query.push(`ordenar_por=${ordenSeleccionado}`);
     const params = query.length ? "?" + query.join("&") : "";
     fetchRestaurantes(params);
     setIsModalOpen(false);
@@ -70,39 +77,71 @@ function App() {
   return (
     <>
       <ToastContainer />
-      <div style={{ padding: "2rem" }}>
-        <div style={{ marginBottom: "1rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            {!isAuthenticated ? (
-              <>
-                <a href="/login" style={{ marginRight: "1rem" }}>Login</a>
-                <a href="/register">Registro</a>
-              </>
-            ) : (
-              <>
-                <a href="/crear-restaurante" style={{ marginRight: "1rem" }}>➕ Añadir restaurante</a>
-                <a href="/crear-publicacion" style={{ marginRight: "1rem" }}>✍️ Crear publicación</a>
-                <a href="/perfil" style={{ marginRight: "1rem" }}>👤 Mi perfil</a>
-                <button onClick={() => {
-                  localStorage.removeItem("token");
-                  window.location.reload();
-                }}>
-                  Cerrar sesión
-                </button>
-              </>
-            )}
+
+      {/* BARRA SUPERIOR FIJA */}
+      {isAuthenticated ? (
+        <div className="w-full bg-white grid grid-cols-3 items-center fixed top-0 left-0 z-50 py-4 px-6">
+          {/* IZQUIERDA */}
+          <div className="flex gap-4">
+            <a href="/perfil" className="text-blue-600 font-medium flex items-center gap-1">
+              👤 Mi perfil
+            </a>
+            <a href="/configuracion" className="text-blue-600 font-medium flex items-center gap-1">
+              ⚙️ Configuración
+            </a>
           </div>
 
-          {/* Buscador de usuarios */}
-          <BuscadorUsuarios />
+          {/* CENTRO */}
+          <div className="flex justify-center gap-4">
+            <a href="/crear-restaurante" className="text-blue-600 font-medium flex items-center gap-1">
+              ➕ Añadir restaurante
+            </a>
+            <BuscadorUsuarios />
+          </div>
+
+          {/* DERECHA */}
+          <div className="flex justify-end">
+            <button
+              onClick={() => {
+                localStorage.removeItem("token");
+                window.location.reload();
+              }}
+              className="bg-red-300 hover:bg-red-500 text-black font-semibold px-4 py-2 rounded"
+            >
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="w-full bg-white grid grid-cols-3 items-center fixed top-0 left-0 z-50 py-4 px-6">
+          <div></div> {/* IZQUIERDA VACÍA */}
+          <div></div> {/* CENTRO VACÍO */}
+          <div className="flex justify-end gap-4">
+            <a href="/login" className="text-blue-600 font-medium">Login</a>
+            <a href="/register" className="text-blue-600 font-medium">Registro</a>
+          </div>
+        </div>
+      )}
+
+      {/* CONTENIDO PRINCIPAL */}
+      <div className="mt-24 w-full">
+        <div className="flex justify-center mb-20">
+          <h1 className="text-3xl font-bold">Bites</h1>
         </div>
 
-        <h1>Bites 🍽️</h1>
+        <div className="flex justify-end gap-4 mb-8 px-6">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded"
+          >
+            🔍 Filtros
+          </button>
 
-        <div style={{ marginBottom: "1rem", display: "flex", gap: "1rem", alignItems: "center" }}>
-          <button onClick={() => setIsModalOpen(true)}>🔍 Filtros</button>
-          <div style={{ position: "relative" }}>
-            <button onClick={() => setMostrarOrdenDropdown(!mostrarOrdenDropdown)}>
+          <div className="relative">
+            <button
+              onClick={() => setMostrarOrdenDropdown(!mostrarOrdenDropdown)}
+              className="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded"
+            >
               📊 {ordenSeleccionado
                 ? {
                     fecha_asc: "Fecha ascendente",
@@ -112,16 +151,9 @@ function App() {
                   }[ordenSeleccionado]
                 : "Ordenar"}
             </button>
+
             {mostrarOrdenDropdown && (
-              <div style={{
-                position: "absolute",
-                backgroundColor: "#fff",
-                border: "1px solid #ccc",
-                borderRadius: "5px",
-                zIndex: 1000,
-                marginTop: "0.5rem",
-                boxShadow: "0px 2px 6px rgba(0,0,0,0.1)"
-              }}>
+              <div className="absolute bg-white border border-gray-300 rounded shadow-md mt-2 right-0 z-50">
                 {[
                   { label: "Fecha ascendente", value: "fecha_asc" },
                   { label: "Fecha descendente", value: "fecha_desc" },
@@ -134,13 +166,9 @@ function App() {
                       setOrdenSeleccionado(value);
                       setMostrarOrdenDropdown(false);
                     }}
-                    style={{
-                      padding: "0.5rem 1rem",
-                      cursor: "pointer",
-                      backgroundColor: ordenSeleccionado === value ? "#eee" : "#fff"
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "#f0f0f0"}
-                    onMouseLeave={e => e.currentTarget.style.backgroundColor = ordenSeleccionado === value ? "#eee" : "#fff"}
+                    className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                      ordenSeleccionado === value ? "bg-gray-100" : ""
+                    }`}
                   >
                     {label}
                   </div>
@@ -150,41 +178,91 @@ function App() {
           </div>
         </div>
 
+        {/* MODAL ESTILIZADO */}
         <Modal
           isOpen={isModalOpen}
           onRequestClose={() => setIsModalOpen(false)}
           contentLabel="Filtros"
-          style={{
-            content: {
-              maxWidth: "500px",
-              margin: "auto",
-              padding: "2rem"
-            }
-          }}
+          overlayClassName="fixed inset-0 bg-black bg-opacity-40 flex items-start justify-center p-4 z-50"
+          className="bg-white rounded-xl shadow-xl w-full max-w-sm mt-20 p-6 outline-none"
         >
-          <h2>Filtrar restaurantes</h2>
-          <input type="text" name="localidad" placeholder="Localidad" value={filtros.localidad} onChange={handleFiltroChange} />
-          <input type="text" name="tipo_cocina" placeholder="Tipo de cocina" value={filtros.tipo_cocina} onChange={handleFiltroChange} />
-          <input type="number" name="precioMin" placeholder="Precio mínimo" value={filtros.precioMin} onChange={handleFiltroChange} />
-          <input type="number" name="precioMax" placeholder="Precio máximo" value={filtros.precioMax} onChange={handleFiltroChange} />
-          <input type="number" name="valoracionMin" placeholder="Valoración mínima" min="1" max="5" step="0.1" value={filtros.valoracionMin} onChange={handleFiltroChange} />
-          <button onClick={aplicarFiltros}>Aplicar filtros</button>
-          <button onClick={() => setIsModalOpen(false)} style={{ marginLeft: "1rem" }}>Cancelar</button>
+          <h2 className="text-xl font-semibold mb-4">Filtrar restaurantes</h2>
+          <div className="space-y-3">
+            <input
+              type="text"
+              name="localidad"
+              placeholder="Localidad"
+              value={filtros.localidad}
+              onChange={handleFiltroChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
+            />
+            <input
+              type="text"
+              name="tipo_cocina"
+              placeholder="Tipo de cocina"
+              value={filtros.tipo_cocina}
+              onChange={handleFiltroChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
+            />
+            <div className="flex gap-2">
+              <input
+                type="number"
+                name="precioMin"
+                placeholder="Precio mínimo"
+                value={filtros.precioMin}
+                onChange={handleFiltroChange}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
+              />
+              <input
+                type="number"
+                name="precioMax"
+                placeholder="Precio máximo"
+                value={filtros.precioMax}
+                onChange={handleFiltroChange}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
+              />
+            </div>
+            <input
+              type="number"
+              name="valoracionMin"
+              placeholder="Valoración mínima"
+              min="1"
+              max="5"
+              step="0.1"
+              value={filtros.valoracionMin}
+              onChange={handleFiltroChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
+            />
+          </div>
+          <div className="mt-6 flex justify-end gap-3">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={aplicarFiltros}
+              className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+            >
+              Aplicar
+            </button>
+          </div>
         </Modal>
 
-        <div
-          style={{display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1.5rem", justifyItems: "stretch", padding: "1rem"}}>
+        {/* LISTADO DE RESTAURANTES */}
+        <div className="w-full px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {restaurantes.map(r => (
-            <Link to={`/restaurante/${r.id}`} key={r.id} style={{ textDecoration: "none", color: "inherit", display: "block", height: "100%"}}>
-              <div style={{ border: "1px solid #ccc", borderRadius: "10px", padding: "1rem", backgroundColor: "#fff", display: "flex", flexDirection: "column", justifyContent: "space-between"}}> 
-                <img src={`${API_URL}${r.imagen}`} alt={r.nombre} style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "8px", marginBottom: "1rem" }} />
+            <Link to={`/restaurantes/${r.id}`} key={r.id} className="no-underline text-black">
+              <div className="border border-gray-300 rounded-lg p-4">
+                <img src={`${API_URL}${r.imagen}`} alt={r.nombre} className="w-full h-48 object-cover rounded-md mb-2" />
                 <h2>{r.nombre}</h2>
                 <p>{r.tipo_cocina}</p>
                 <p><strong>Localidad:</strong> {r.localidad}</p>
                 <p><strong>Precio:</strong> {r.precio_medio}</p>
                 <p>
-                  <strong>Valoración:</strong> ⭐ {r.valoracion_media ? r.valoracion_media : "Sin reseñas"}
-                  {r.cantidad_resenas !== undefined && r.cantidad_resenas > 0 && (
+                  <strong>Valoración:</strong> ⭐ {r.valoracion_media ?? "Sin reseñas"}
+                  {r.cantidad_resenas > 0 && (
                     <> ({r.cantidad_resenas} reseña{r.cantidad_resenas > 1 ? "s" : ""})</>
                   )}
                 </p>

@@ -22,17 +22,11 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 db.init_app(app)
 jwt = JWTManager(app)
 CORS(app, resources={r"/api/*": {
-    "origins": ["http://localhost:5173"],  # o usa "*" solo para pruebas
+    "origins": ["http://localhost:5173", "http://127.0.0.1:5173"],
+    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     "allow_headers": ["Content-Type", "Authorization"],
     "supports_credentials": True
 }})
-
-
-# ✅ RUTA DE PRUEBA PARA VER HEADERS
-@app.route("/api/test-headers", methods=["POST"])
-def test_headers():
-    print("🟡 Headers recibidos:", dict(request.headers))
-    return jsonify({"msg": "Headers recibidos correctamente"}), 200
 
 
 # Registrar blueprints (después de configurar todo)
@@ -53,6 +47,13 @@ app.register_blueprint(user_bp, url_prefix="/api/usuarios")
 
 from routes.publication_routes import publication_bp
 app.register_blueprint(publication_bp, url_prefix="/api/publicaciones")
+
+from routes.notification_routes import notification_bp
+app.register_blueprint(notification_bp, url_prefix='/api/notificaciones')
+
+from routes.admin_routes import admin_bp
+app.register_blueprint(admin_bp, url_prefix="/api/admin")
+
 
 
 # Crear tablas en la BD

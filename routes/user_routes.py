@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import db, Usuario, Resena, Publicacion
+from models import db, Usuario, Resena, Publicacion, Restaurante
 
 user_bp = Blueprint('usuarios', __name__)
 
@@ -17,6 +17,7 @@ def obtener_perfil():
         "id": usuario.id,
         "nombre": usuario.nombre,
         "email": usuario.email,
+        "role": usuario.role,
         "fecha_registro": usuario.fecha_registro.strftime('%Y-%m-%d'),
         "resenas": [
             {
@@ -79,3 +80,69 @@ def perfil_publico(id):
             for r in resenas
         ]
     }), 200
+
+# Obtener publicaciones de un usuario por ID
+@user_bp.route('/<int:usuario_id>/publicaciones', methods=['GET'])
+def obtener_publicaciones_de_usuario(usuario_id):
+    publicaciones = Publicacion.query.filter_by(usuario_id=usuario_id).order_by(Publicacion.fecha.desc()).all()
+    return jsonify([p.to_dict() for p in publicaciones]), 200
+
+# Actualizar perfil de usuario
+@user_bp.route("/actualizar", methods=["PUT"])
+@jwt_required()
+def actualizar_usuario():
+    user_id = get_jwt_identity()
+    user = Usuario.query.get(user_id)
+    if not user:
+        return jsonify({"msg": "Usuario no encontrado"}), 404
+
+    data = request.get_json()
+    nombre = data.get("nombre")
+    email = data.get("email")
+    nueva_contrasena = data.get("contrasena")
+
+    if nombre:
+        user.nombre = nombre
+    if email:
+        user.email = email
+    if nueva_contrasena:
+        from werkzeug.security import generate_password_hash
+        user.contrasena = generate_password_hash(nueva_contrasena)
+
+    db.session.commit()
+    return jsonify({"msg": "Perfil actualizado correctamente"}), 200
+
+
+#Eliminar cuenta de usuario
+@user_bp.route('/eliminar', methods=['DELETE'])
+@jwt_required()
+def eliminar_cuenta():
+    user_id = get_jwt_identity()
+    conservar_restaurantes = request.json.get("conservar_restaurantes", False)
+
+    usuario = Usuario.query.get_or_404(user_id)
+
+    if conservar_restaurantes:
+        # Buscar el usuario sistema para conservar los restaurantes
+        nuevo_duenio = Usuario.query.filter_by(email="sistema@bites.com").first()
+        if not nuevo_duenio:
+            return jsonify({"msg": "Usuario conservador no encontrado"}), 500
+
+        # Reasignar restaurantes
+        restaurantes = Restaurante.query.filter_by(creador_id=user_id).all()
+        for r in restaurantes:
+            r.creador_id = nuevo_duenio.id
+
+    else:
+        # Eliminar restaurantes creados por este usuario
+        Restaurante.query.filter_by(creador_id=user_id).delete()
+
+    # Eliminar publicaciones y reseñas
+    Publicacion.query.filter_by(usuario_id=user_id).delete()
+    Resena.query.filter_by(usuario_id=user_id).delete()
+
+    # Eliminar el usuario
+    db.session.delete(usuario)
+
+    db.session.commit()
+    return jsonify({"msg": "Cuenta eliminada correctamente"}), 200
