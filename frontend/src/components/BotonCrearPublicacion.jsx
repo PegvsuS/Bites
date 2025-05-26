@@ -14,19 +14,21 @@
         <button
         onClick={() => navigate("/crear-publicacion")}
         style={{
-            position: "fixed",
-            bottom: "2rem",
-            right: "2rem",
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            padding: "0.75rem 1.2rem",
-            borderRadius: "9999px",
-            fontSize: "1.5rem",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-            cursor: "pointer",
-            zIndex: 1000
+        position: "absolute", 
+        bottom: "2rem",
+        left: "50%",
+        transform: "translateX(-50%)", // centrado visual
+        backgroundColor: "#311031",
+        color: "white",
+        border: "none",
+        padding: "0.75rem 1.2rem",
+        borderRadius: "9999px",
+        fontSize: "1.5rem",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+        cursor: "pointer",
+        zIndex: 1000
         }}
+
         >
         ➕
         </button>
