@@ -1,38 +1,36 @@
     import { useNavigate, useLocation } from "react-router-dom";
 
-    function BotonCrearPublicacion() {
+    export default function BotonCrearPublicacion() {
     const navigate = useNavigate();
     const location = useLocation();
     const token = localStorage.getItem("token");
 
-    // Ocultamos en login o registro
+    // Ocultamos en login o register
     const ocultar = ["/login", "/register"].includes(location.pathname);
-
     if (!token || ocultar) return null;
 
     return (
         <button
         onClick={() => navigate("/crear-publicacion")}
-        style={{
-        position: "absolute", 
-        bottom: "2rem",
-        left: "50%",
-        transform: "translateX(-50%)", // centrado visual
-        backgroundColor: "#311031",
-        color: "white",
-        border: "none",
-        padding: "0.75rem 1.2rem",
-        borderRadius: "9999px",
-        fontSize: "1.5rem",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-        cursor: "pointer",
-        zIndex: 1000
-        }}
-
+        className="
+            fixed 
+            bottom-8 
+            left-1/2 
+            transform -translate-x-1/2
+            bg-purple-600 hover:bg-purple-700 
+            text-white 
+            w-14 h-14 
+            flex items-center justify-center 
+            rounded-full 
+            text-3xl 
+            shadow-lg 
+            transition 
+            focus:outline-none focus:ring-2 focus:ring-purple-400
+            z-50
+        "
+        aria-label="Crear publicación"
         >
-        ➕
+        +
         </button>
     );
     }
-
-    export default BotonCrearPublicacion;
