@@ -47,28 +47,24 @@ function App() {
 
   useEffect(() => {
     const query = [];
-
-    if (filtros.localidad) query.push(`localidad=${filtros.localidad}`);
+    if (filtros.localidad)   query.push(`localidad=${filtros.localidad}`);
     if (filtros.tipo_cocina) query.push(`tipo_cocina=${filtros.tipo_cocina}`);
-    if (filtros.precioMin) query.push(`precio_min=${filtros.precioMin}`);
-    if (filtros.precioMax) query.push(`precio_max=${filtros.precioMax}`);
+    if (filtros.precioMin)   query.push(`precio_min=${filtros.precioMin}`);
+    if (filtros.precioMax)   query.push(`precio_max=${filtros.precioMax}`);
     if (filtros.valoracionMin) query.push(`valoracion_min=${filtros.valoracionMin}`);
-    if (ordenSeleccionado) query.push(`ordenar_por=${ordenSeleccionado}`);
-
+    if (ordenSeleccionado)   query.push(`ordenar_por=${ordenSeleccionado}`);
     const params = query.length ? "?" + query.join("&") : "";
     fetchRestaurantes(params);
   }, [ordenSeleccionado]);
 
   const aplicarFiltros = () => {
     const query = [];
-
-    if (filtros.localidad) query.push(`localidad=${filtros.localidad}`);
+    if (filtros.localidad)   query.push(`localidad=${filtros.localidad}`);
     if (filtros.tipo_cocina) query.push(`tipo_cocina=${filtros.tipo_cocina}`);
-    if (filtros.precioMin) query.push(`precio_min=${filtros.precioMin}`);
-    if (filtros.precioMax) query.push(`precio_max=${filtros.precioMax}`);
+    if (filtros.precioMin)   query.push(`precio_min=${filtros.precioMin}`);
+    if (filtros.precioMax)   query.push(`precio_max=${filtros.precioMax}`);
     if (filtros.valoracionMin) query.push(`valoracion_min=${filtros.valoracionMin}`);
-    if (ordenSeleccionado) query.push(`ordenar_por=${ordenSeleccionado}`);
-
+    if (ordenSeleccionado)   query.push(`ordenar_por=${ordenSeleccionado}`);
     const params = query.length ? "?" + query.join("&") : "";
     fetchRestaurantes(params);
     setIsModalOpen(false);
@@ -182,28 +178,79 @@ function App() {
           </div>
         </div>
 
+        {/* MODAL ESTILIZADO */}
         <Modal
           isOpen={isModalOpen}
           onRequestClose={() => setIsModalOpen(false)}
           contentLabel="Filtros"
-          style={{
-            content: {
-              maxWidth: "500px",
-              margin: "auto",
-              padding: "2rem"
-            }
-          }}
+          overlayClassName="fixed inset-0 bg-black bg-opacity-40 flex items-start justify-center p-4 z-50"
+          className="bg-white rounded-xl shadow-xl w-full max-w-sm mt-20 p-6 outline-none"
         >
-          <h2>Filtrar restaurantes</h2>
-          <input type="text" name="localidad" placeholder="Localidad" value={filtros.localidad} onChange={handleFiltroChange} />
-          <input type="text" name="tipo_cocina" placeholder="Tipo de cocina" value={filtros.tipo_cocina} onChange={handleFiltroChange} />
-          <input type="number" name="precioMin" placeholder="Precio mínimo" value={filtros.precioMin} onChange={handleFiltroChange} />
-          <input type="number" name="precioMax" placeholder="Precio máximo" value={filtros.precioMax} onChange={handleFiltroChange} />
-          <input type="number" name="valoracionMin" placeholder="Valoración mínima" min="1" max="5" step="0.1" value={filtros.valoracionMin} onChange={handleFiltroChange} />
-          <button onClick={aplicarFiltros}>Aplicar filtros</button>
-          <button onClick={() => setIsModalOpen(false)} style={{ marginLeft: "1rem" }}>Cancelar</button>
+          <h2 className="text-xl font-semibold mb-4">Filtrar restaurantes</h2>
+          <div className="space-y-3">
+            <input
+              type="text"
+              name="localidad"
+              placeholder="Localidad"
+              value={filtros.localidad}
+              onChange={handleFiltroChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
+            />
+            <input
+              type="text"
+              name="tipo_cocina"
+              placeholder="Tipo de cocina"
+              value={filtros.tipo_cocina}
+              onChange={handleFiltroChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
+            />
+            <div className="flex gap-2">
+              <input
+                type="number"
+                name="precioMin"
+                placeholder="Precio mínimo"
+                value={filtros.precioMin}
+                onChange={handleFiltroChange}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
+              />
+              <input
+                type="number"
+                name="precioMax"
+                placeholder="Precio máximo"
+                value={filtros.precioMax}
+                onChange={handleFiltroChange}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
+              />
+            </div>
+            <input
+              type="number"
+              name="valoracionMin"
+              placeholder="Valoración mínima"
+              min="1"
+              max="5"
+              step="0.1"
+              value={filtros.valoracionMin}
+              onChange={handleFiltroChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
+            />
+          </div>
+          <div className="mt-6 flex justify-end gap-3">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={aplicarFiltros}
+              className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+            >
+              Aplicar
+            </button>
+          </div>
         </Modal>
 
+        {/* LISTADO DE RESTAURANTES */}
         <div className="w-full px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {restaurantes.map(r => (
             <Link to={`/restaurantes/${r.id}`} key={r.id} className="no-underline text-black">
