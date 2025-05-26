@@ -1,10 +1,10 @@
     import { useEffect, useState } from "react";
     import { useParams, useNavigate } from "react-router-dom";
     import { toast } from "react-toastify";
-    import { Swiper, SwiperSlide } from 'swiper/react';
-    import 'swiper/css';
+    import { Swiper, SwiperSlide } from "swiper/react";
+    import "swiper/css";
 
-    function EditarPublicacion() {
+    export default function EditarPublicacion() {
     const { id } = useParams();
     const navigate = useNavigate();
     const API_URL = import.meta.env.VITE_API_URL;
@@ -15,10 +15,11 @@
     const [mediaExistente, setMediaExistente] = useState([]);
     const [mediaEliminada, setMediaEliminada] = useState([]);
     const [archivosNuevos, setArchivosNuevos] = useState([]);
-    const [previsualizaciones, setPrevisualizaciones] = useState([]);
+    const [previews, setPreviews] = useState([]);
 
+    // Carga de datos
     useEffect(() => {
-        const cargarPublicacion = async () => {
+        const cargar = async () => {
         try {
             const res = await fetch(`${API_URL}/api/publicaciones/${id}`);
             const data = await res.json();
@@ -27,76 +28,61 @@
             setRestauranteEtiquetado(data.restaurante_etiquetado || "");
             setMediaExistente(data.media || []);
             } else {
-            toast.error(data.msg || "Error al cargar publicación");
+            toast.error(data.msg || "Error al cargar");
             }
         } catch {
             toast.error("Error de red");
         }
         };
-        cargarPublicacion();
+        cargar();
     }, [id]);
 
-    const handleArchivos = (e) => {
+    // Limpieza de previews
+    useEffect(() => {
+        return () => previews.forEach(p => URL.revokeObjectURL(p.url));
+    }, [previews]);
+
+    // Manejo de nuevos archivos
+    const handleArchivos = e => {
         const files = Array.from(e.target.files);
-        const validFiles = [];
-
-        for (let file of files) {
-        const isImage = file.type.startsWith("image/");
-        const isVideo = file.type.startsWith("video/");
-        if (!(isImage || isVideo)) {
-            toast.error(`Archivo no permitido: ${file.name}`);
-            continue;
+        const valid = files.filter(f =>
+        f.type.startsWith("image/") || f.type.startsWith("video/")
+        );
+        if (valid.length !== files.length) {
+        toast.error("Solo imágenes o vídeos");
         }
-        validFiles.push(file);
-        }
-
-        if (validFiles.length + mediaExistente.length + archivosNuevos.length > 10) {
-        toast.error("Máximo 10 archivos por publicación");
+        if (valid.length + mediaExistente.length + archivosNuevos.length > 10) {
+        toast.error("Máximo 10 items");
         return;
         }
-
-        setArchivosNuevos(prev => [...prev, ...validFiles]);
-
-        const previews = validFiles.map(file => {
-        const url = URL.createObjectURL(file);
-        return {
-            url,
-            type: file.type.startsWith("video") ? "video" : "image"
-        };
-        });
-
-        setPrevisualizaciones(prev => [...prev, ...previews]);
+        setArchivosNuevos(prev => [...prev, ...valid]);
+        const newPreviews = valid.map(f => ({
+        url: URL.createObjectURL(f),
+        type: f.type.startsWith("video") ? "video" : "image"
+        }));
+        setPreviews(prev => [...prev, ...newPreviews]);
     };
 
-    useEffect(() => {
-        return () => {
-        previsualizaciones.forEach(pre => URL.revokeObjectURL(pre.url));
-        };
-    }, [previsualizaciones]);
-
-    const eliminarMediaExistente = (index) => {
-        const media = mediaExistente[index];
-        setMediaEliminada(prev => [...prev, media.id]);
-        const actualizada = [...mediaExistente];
-        actualizada.splice(index, 1);
-        setMediaExistente(actualizada);
+    // Eliminar media existente
+    const eliminarExistente = idx => {
+        setMediaEliminada(prev => [...prev, mediaExistente[idx].id]);
+        setMediaExistente(prev => prev.filter((_, i) => i !== idx));
     };
 
-    const handleSubmit = async (e) => {
+    // Submit
+    const handleSubmit = async e => {
         e.preventDefault();
-        const formData = new FormData();
-        formData.append("contenido", contenido);
-        formData.append("restaurante_etiquetado", restauranteEtiquetado);
-        archivosNuevos.forEach(file => formData.append("media", file));
-        mediaEliminada.forEach(id => formData.append("media_eliminada", id));
+        const form = new FormData();
+        form.append("contenido", contenido);
+        form.append("restaurante_etiquetado", restauranteEtiquetado);
+        archivosNuevos.forEach(f => form.append("media", f));
+        mediaEliminada.forEach(id => form.append("media_eliminada", id));
 
         try {
         const res = await fetch(`${API_URL}/api/publicaciones/${id}`, {
             method: "PUT",
-            headers: {
-            Authorization: `Bearer ${token}`
-            },
-            body: formData
+            headers: { Authorization: `Bearer ${token}` },
+            body: form
         });
         const data = await res.json();
         if (res.ok) {
@@ -111,80 +97,128 @@
     };
 
     return (
-        <div style={{ maxWidth: "600px", margin: "2rem auto" }}>
-        <h2>Editar publicación</h2>
-        <form onSubmit={handleSubmit}>
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <form
+            onSubmit={handleSubmit}
+            className="w-full max-w-xl bg-white rounded-2xl shadow-lg p-6 space-y-6"
+        >
+            <h2 className="text-2xl font-semibold text-gray-800 text-center">
+            Editar Publicación
+            </h2>
+
+            {/* Contenido */}
             <textarea
             value={contenido}
-            onChange={(e) => setContenido(e.target.value)}
-            placeholder="Contenido"
-            style={{ width: "100%", minHeight: "100px", marginBottom: "1rem" }}
+            onChange={e => setContenido(e.target.value)}
+            placeholder="¿Qué quieres compartir?"
+            className="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-400"
             />
 
+            {/* Restaurante etiquetado */}
             <input
             type="text"
             value={restauranteEtiquetado}
-            onChange={(e) => setRestauranteEtiquetado(e.target.value)}
-            placeholder="Restaurante etiquetado (opcional)"
-            style={{ width: "100%", marginBottom: "1rem" }}
+            onChange={e => setRestauranteEtiquetado(e.target.value)}
+            placeholder="Etiqueta un restaurante (opcional)"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
             />
 
-            <input type="file" accept="image/*,video/*" multiple onChange={handleArchivos} />
+            {/* Subida de archivos */}
+            <div>
+            <label className="block mb-2 text-gray-700 font-medium">
+                Añadir imágenes o vídeos
+            </label>
+            <div className="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-purple-400 transition-colors">
+                <input
+                id="files"
+                type="file"
+                accept="image/*,video/*"
+                multiple
+                onChange={handleArchivos}
+                className="hidden"
+                />
+                <label
+                htmlFor="files"
+                className="cursor-pointer text-purple-600 hover:text-purple-800"
+                >
+                Selecciona o arrastra aquí
+                </label>
+            </div>
+            </div>
 
-            {(mediaExistente.length > 0 || previsualizaciones.length > 0) && (
-            <Swiper slidesPerView={1} spaceBetween={10}>
+            {/* Vista previa y existente */}
+            {(mediaExistente.length > 0 || previews.length > 0) && (
+            <Swiper slidesPerView={1} spaceBetween={10} className="my-4">
+                {/* Existente */}
                 {mediaExistente.map((m, i) => (
-                <SwiperSlide key={`existente-${i}`}>
-                    <div style={{ position: "relative" }}>
+                <SwiperSlide key={`old-${i}`}>
+                    <div className="relative">
                     {m.tipo === "video" ? (
-                        <video src={`${API_URL}${m.url}`} controls style={{ width: "100%" }} />
+                        <video
+                        src={`${API_URL}${m.url}`}
+                        controls
+                        className="w-full rounded-lg"
+                        />
                     ) : (
-                        <img src={`${API_URL}${m.url}`} alt="media" style={{ width: "100%" }} />
+                        <img
+                        src={`${API_URL}${m.url}`}
+                        alt="media"
+                        className="w-full rounded-lg"
+                        />
                     )}
                     <button
                         type="button"
-                        onClick={() => eliminarMediaExistente(i)}
-                        style={{
-                        position: "absolute",
-                        top: "10px",
-                        right: "10px",
-                        background: "rgba(255, 0, 0, 0.8)",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "50%",
-                        padding: "0.5rem",
-                        cursor: "pointer",
-                        fontSize: "1rem",
-                        }}
+                        onClick={() => eliminarExistente(i)}
+                        className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1"
                     >
                         ✕
                     </button>
                     </div>
                 </SwiperSlide>
                 ))}
-
-                {previsualizaciones.map((m, i) => (
-                <SwiperSlide key={`preview-${i}`}>
+                {/* Nuevas previews */}
+                {previews.map((m, i) => (
+                <SwiperSlide key={`new-${i}`}>
                     {m.type === "video" ? (
-                    <video src={m.url} controls style={{ width: "100%" }} />
+                    <video
+                        src={m.url}
+                        controls
+                        className="w-full rounded-lg"
+                    />
                     ) : (
-                    <img src={m.url} alt="preview" style={{ width: "100%" }} />
+                    <img
+                        src={m.url}
+                        alt="preview"
+                        className="w-full rounded-lg"
+                    />
                     )}
                 </SwiperSlide>
                 ))}
             </Swiper>
             )}
 
+            {/* Botones */}
+            <div className="flex justify-end gap-4">
             <button
-            type="submit"
-            disabled={!contenido.trim() && archivosNuevos.length === 0}
-            style={{ marginTop: "1rem" }}
+                type="button"
+                onClick={() => navigate("/perfil")}
+                className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
             >
-            Guardar cambios
+                Cancelar
             </button>
+            <button
+                type="submit"
+                disabled={!contenido.trim() && archivosNuevos.length === 0}
+                className={`px-4 py-2 rounded-lg font-semibold transition ${
+                (!contenido.trim() && archivosNuevos.length === 0)
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-purple-600 hover:bg-purple-700 text-white"
+                }`}
+            >
+                Guardar cambios
+            </button>
+            </div>
         </form>
         </div>
     );
     }
-
-    export default EditarPublicacion;
