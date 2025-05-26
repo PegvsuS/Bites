@@ -7,8 +7,8 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import App from "./App";
 import RestauranteDetalle from "./pages/RestauranteDetalle";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+// import Login from "./pages/Login";
+// import Register from "./pages/Register";
 import CrearRestaurante from './pages/CrearRestaurante';
 import PerfilUsuario from "./pages/PerfilUsuario";
 import PerfilPublicoUsuario from "./pages/PerfilPublicoUsuario";
@@ -18,6 +18,7 @@ import EditarPublicacion from "./pages/EditarPublicacion";
 import BotonCrearPublicacion from "./components/BotonCrearPublicacion";
 import ConfiguracionUsuario from "./pages/ConfiguracionUsuario";
 import AdminPanel from "./pages/AdminPanel";
+import Auth from './pages/Auth';
 
 
 <Route path="/admin" element={<AdminPanel />} />
@@ -32,8 +33,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/restaurantes/:id" element={<RestauranteDetalle />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          {/* <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} /> */}
+          <Route path="/login" element={<Auth />} />
+          <Route path="/register" element={<Auth />} />
           <Route path="/crear-restaurante" element={<CrearRestaurante />} />
           <Route path="/perfil" element={<PerfilUsuario />} />
           <Route path="/usuarios/:id" element={<PerfilPublicoUsuario />} />
